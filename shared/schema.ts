@@ -26,6 +26,36 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
+// Organizational Structure - Direction Générale
+export const directions = pgTable("directions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  location: varchar("location").notNull(),
+  directorId: varchar("director_id").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Organizational Structure - Pôles Opérationnels
+export const poles = pgTable("poles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  region: varchar("region").notNull(), // Extrême Est, Centre, Ouest, Sud
+  location: varchar("location").notNull(),
+  directorId: varchar("director_id").references(() => users.id),
+  directionId: varchar("direction_id").references(() => directions.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Organizational Structure - Units/Unités
+export const units = pgTable("units", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  city: varchar("city").notNull(),
+  managerId: varchar("manager_id").references(() => users.id),
+  poleId: varchar("pole_id").references(() => poles.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // User storage table (required for Replit Auth)
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -33,7 +63,9 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
-  role: varchar("role").default("user"), // admin, manager, user
+  role: varchar("role").default("user"), // admin, manager, director, user
+  accreditationLevel: varchar("accreditation_level").default("0"), // 0: User, 1: Supervisor, 2: Manager, 3: Director, 4: Admin
+  unitId: varchar("unit_id").references(() => units.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -51,6 +83,8 @@ export const employees = pgTable("employees", {
   phone: varchar("phone"),
   position: varchar("position").notNull(),
   department: varchar("department").notNull(),
+  unitId: varchar("unit_id").references(() => units.id),
+  supervisorId: varchar("supervisor_id").references(() => employees.id),
   hireDate: date("hire_date").notNull(),
   salary: decimal("salary", { precision: 10, scale: 2 }),
   status: varchar("status").default("active"), // active, inactive, on_leave
@@ -174,7 +208,6 @@ export const insertLeaveSchema = createInsertSchema(leaves).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  approvedBy: true,
   approvedAt: true,
 });
 
@@ -191,9 +224,7 @@ export const payroll = pgTable("payroll", {
   bonus: decimal("bonus", { precision: 10, scale: 2 }).default("0"),
   deductions: decimal("deductions", { precision: 10, scale: 2 }).default("0"),
   netSalary: decimal("net_salary", { precision: 10, scale: 2 }).notNull(),
-  paymentDate: date("payment_date"),
-  status: varchar("status").default("draft"), // draft, processed, paid
-  notes: text("notes"),
+  status: varchar("status").default("draft"), // draft, validated, paid
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -212,14 +243,13 @@ export const formations = pgTable("formations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: varchar("title").notNull(),
   description: text("description"),
-  instructor: varchar("instructor"),
+  category: varchar("category").notNull(),
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
+  instructorId: varchar("instructor_id").references(() => employees.id),
+  capacity: integer("capacity").default(30),
   location: varchar("location"),
-  capacity: integer("capacity"),
-  enrolled: integer("enrolled").default(0),
-  status: varchar("status").default("upcoming"), // upcoming, ongoing, completed, cancelled
-  category: varchar("category"), // technical, management, safety, compliance
+  status: varchar("status").default("scheduled"), // scheduled, in_progress, completed, cancelled
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -228,33 +258,19 @@ export const insertFormationSchema = createInsertSchema(formations).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  enrolled: true,
 });
 
 export type InsertFormation = z.infer<typeof insertFormationSchema>;
 export type Formation = typeof formations.$inferSelect;
 
-// Formation Enrollments table
-export const formationEnrollments = pgTable("formation_enrollments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  formationId: varchar("formation_id").references(() => formations.id, { onDelete: 'cascade' }).notNull(),
-  employeeId: varchar("employee_id").references(() => employees.id, { onDelete: 'cascade' }).notNull(),
-  enrolledAt: timestamp("enrolled_at").defaultNow(),
-  completedAt: timestamp("completed_at"),
-  status: varchar("status").default("enrolled"), // enrolled, completed, dropped
-});
-
-export type FormationEnrollment = typeof formationEnrollments.$inferSelect;
-
 // Notifications table
 export const notifications = pgTable("notifications", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  type: varchar("type").notNull(), // info, success, warning, error
   title: varchar("title").notNull(),
   message: text("message").notNull(),
-  isRead: boolean("is_read").default(false),
-  link: varchar("link"),
+  type: varchar("type").default("info"), // info, warning, error, success
+  read: boolean("read").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -266,105 +282,125 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type Notification = typeof notifications.$inferSelect;
 
+// MESSAGING - Messages table
+export const messages = pgTable("messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: 'cascade' }).notNull(),
+  senderId: varchar("sender_id").references(() => users.id).notNull(),
+  content: text("content").notNull(),
+  attachments: text("attachments"), // JSON array of file URLs
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertMessageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true,
+  isRead: true,
+});
+
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type Message = typeof messages.$inferSelect;
+
+// Conversations table
+export const conversations = pgTable("conversations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name"),
+  type: varchar("type").default("direct"), // direct, group
+  createdBy: varchar("created_by").references(() => users.id).notNull(),
+  lastMessageAt: timestamp("last_message_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertConversationSchema = createInsertSchema(conversations).omit({
+  id: true,
+  createdAt: true,
+  lastMessageAt: true,
+});
+
+export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type Conversation = typeof conversations.$inferSelect;
+
+// Conversation Participants
+export const conversationParticipants = pgTable("conversation_participants", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: 'cascade' }).notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  joinedAt: timestamp("joined_at").defaultNow(),
+});
+
+// ORDRES DE MISSION - Mission Orders table
+export const missionOrders = pgTable("mission_orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orderNumber: varchar("order_number").unique().notNull(),
+  employeeId: varchar("employee_id").references(() => employees.id).notNull(),
+  projectId: varchar("project_id").references(() => projects.id),
+  destination: varchar("destination").notNull(),
+  purpose: text("purpose").notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+  duration: integer("duration").notNull(), // in days
+  transportMode: varchar("transport_mode"), // vehicle, flight, train, other
+  estimatedBudget: decimal("estimated_budget", { precision: 10, scale: 2 }),
+  status: varchar("status").default("draft"), // draft, pending_approval, approved, in_progress, completed, cancelled
+  approvedBy: varchar("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertMissionOrderSchema = createInsertSchema(missionOrders).omit({
+  id: true,
+  orderNumber: true,
+  createdAt: true,
+  updatedAt: true,
+  approvedAt: true,
+});
+
+export type InsertMissionOrder = z.infer<typeof insertMissionOrderSchema>;
+export type MissionOrder = typeof missionOrders.$inferSelect;
+
+// DÉPLACEMENTS - Travel/Displacement Requests table
+export const travels = pgTable("travels", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  missionOrderId: varchar("mission_order_id").references(() => missionOrders.id, { onDelete: 'cascade' }),
+  employeeId: varchar("employee_id").references(() => employees.id).notNull(),
+  departureDate: date("departure_date").notNull(),
+  returnDate: date("return_date").notNull(),
+  origin: varchar("origin").notNull(),
+  destination: varchar("destination").notNull(),
+  transportMode: varchar("transport_mode").notNull(), // car, flight, train, bus
+  distance: integer("distance"), // in km
+  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 2 }),
+  actualCost: decimal("actual_cost", { precision: 10, scale: 2 }),
+  status: varchar("status").default("pending"), // pending, approved, in_transit, completed, cancelled
+  approvedBy: varchar("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertTravelSchema = createInsertSchema(travels).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  approvedAt: true,
+});
+
+export type InsertTravel = z.infer<typeof insertTravelSchema>;
+export type Travel = typeof travels.$inferSelect;
+
 // Audit Logs table
 export const auditLogs = pgTable("audit_logs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
-  action: varchar("action").notNull(), // create, update, delete, login, logout
-  entity: varchar("entity").notNull(), // user, employee, project, document, etc.
-  entityId: varchar("entity_id"),
-  details: jsonb("details"),
-  ipAddress: varchar("ip_address"),
-  userAgent: text("user_agent"),
+  action: varchar("action").notNull(),
+  entityType: varchar("entity_type").notNull(),
+  entityId: varchar("entity_id").notNull(),
+  changes: jsonb("changes"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export type AuditLog = typeof auditLogs.$inferSelect;
-
-// Relations
-export const usersRelations = relations(users, ({ many }) => ({
-  notifications: many(notifications),
-}));
-
-export const employeesRelations = relations(employees, ({ one, many }) => ({
-  user: one(users, {
-    fields: [employees.userId],
-    references: [users.id],
-  }),
-  managedProjects: many(projects),
-  tasks: many(tasks),
-  leaves: many(leaves),
-  payrolls: many(payroll),
-  formationEnrollments: many(formationEnrollments),
-}));
-
-export const projectsRelations = relations(projects, ({ one, many }) => ({
-  manager: one(employees, {
-    fields: [projects.managerId],
-    references: [employees.id],
-  }),
-  tasks: many(tasks),
-  documents: many(documents),
-}));
-
-export const tasksRelations = relations(tasks, ({ one }) => ({
-  project: one(projects, {
-    fields: [tasks.projectId],
-    references: [projects.id],
-  }),
-  assignee: one(employees, {
-    fields: [tasks.assigneeId],
-    references: [employees.id],
-  }),
-}));
-
-export const documentsRelations = relations(documents, ({ one }) => ({
-  uploader: one(users, {
-    fields: [documents.uploadedBy],
-    references: [users.id],
-  }),
-  project: one(projects, {
-    fields: [documents.projectId],
-    references: [projects.id],
-  }),
-}));
-
-export const leavesRelations = relations(leaves, ({ one }) => ({
-  employee: one(employees, {
-    fields: [leaves.employeeId],
-    references: [employees.id],
-  }),
-  approver: one(users, {
-    fields: [leaves.approvedBy],
-    references: [users.id],
-  }),
-}));
-
-export const payrollRelations = relations(payroll, ({ one }) => ({
-  employee: one(employees, {
-    fields: [payroll.employeeId],
-    references: [employees.id],
-  }),
-}));
-
-export const formationsRelations = relations(formations, ({ many }) => ({
-  enrollments: many(formationEnrollments),
-}));
-
-export const formationEnrollmentsRelations = relations(formationEnrollments, ({ one }) => ({
-  formation: one(formations, {
-    fields: [formationEnrollments.formationId],
-    references: [formations.id],
-  }),
-  employee: one(employees, {
-    fields: [formationEnrollments.employeeId],
-    references: [employees.id],
-  }),
-}));
-
-export const notificationsRelations = relations(notifications, ({ one }) => ({
-  user: one(users, {
-    fields: [notifications.userId],
-    references: [users.id],
-  }),
-}));

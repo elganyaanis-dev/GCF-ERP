@@ -8,6 +8,14 @@ import {
   formations,
   notifications,
   auditLogs,
+  messages,
+  conversations,
+  conversationParticipants,
+  missionOrders,
+  travels,
+  directions,
+  poles,
+  units,
   type User,
   type UpsertUser,
   type Employee,
@@ -25,9 +33,17 @@ import {
   type Notification,
   type InsertNotification,
   type AuditLog,
+  type Message,
+  type InsertMessage,
+  type Conversation,
+  type InsertConversation,
+  type MissionOrder,
+  type InsertMissionOrder,
+  type Travel,
+  type InsertTravel,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -70,6 +86,28 @@ export interface IStorage {
   // Notification operations
   getNotifications(userId: string): Promise<Notification[]>;
   createNotification(notification: InsertNotification): Promise<Notification>;
+
+  // Messaging operations
+  getConversations(userId: string): Promise<Conversation[]>;
+  createConversation(conversation: InsertConversation): Promise<Conversation>;
+  getMessages(conversationId: string): Promise<Message[]>;
+  sendMessage(message: InsertMessage): Promise<Message>;
+  addParticipant(conversationId: string, userId: string): Promise<void>;
+
+  // Mission Orders operations
+  getMissionOrders(): Promise<MissionOrder[]>;
+  createMissionOrder(order: InsertMissionOrder): Promise<MissionOrder>;
+  updateMissionOrder(id: string, order: Partial<InsertMissionOrder>): Promise<MissionOrder | undefined>;
+
+  // Travel operations
+  getTravels(): Promise<Travel[]>;
+  createTravel(travel: InsertTravel): Promise<Travel>;
+  updateTravel(id: string, travel: Partial<InsertTravel>): Promise<Travel | undefined>;
+
+  // Organizational operations
+  getDirections(): Promise<any[]>;
+  getPoles(): Promise<any[]>;
+  getUnits(): Promise<any[]>;
 
   // Dashboard stats
   getDashboardStats(): Promise<any>;
@@ -245,6 +283,113 @@ export class DatabaseStorage implements IStorage {
       .values(notification)
       .returning();
     return newNotification;
+  }
+
+  // Messaging operations
+  async getConversations(userId: string): Promise<Conversation[]> {
+    const userConversations = await db
+      .select({ conversationId: conversationParticipants.conversationId })
+      .from(conversationParticipants)
+      .where(eq(conversationParticipants.userId, userId));
+
+    if (userConversations.length === 0) {
+      return [];
+    }
+
+    const convIds = userConversations.map(c => c.conversationId);
+    return await db
+      .select()
+      .from(conversations)
+      .where(sql`${conversations.id} = ANY(ARRAY[${convIds}]::text[])`);
+  }
+
+  async createConversation(conversation: InsertConversation): Promise<Conversation> {
+    const [newConversation] = await db
+      .insert(conversations)
+      .values(conversation)
+      .returning();
+    return newConversation;
+  }
+
+  async getMessages(conversationId: string): Promise<Message[]> {
+    return await db
+      .select()
+      .from(messages)
+      .where(eq(messages.conversationId, conversationId))
+      .orderBy(messages.createdAt);
+  }
+
+  async sendMessage(message: InsertMessage): Promise<Message> {
+    const [newMessage] = await db
+      .insert(messages)
+      .values(message)
+      .returning();
+    return newMessage;
+  }
+
+  async addParticipant(conversationId: string, userId: string): Promise<void> {
+    await db
+      .insert(conversationParticipants)
+      .values({ conversationId, userId })
+      .onConflictDoNothing();
+  }
+
+  // Mission Orders operations
+  async getMissionOrders(): Promise<MissionOrder[]> {
+    return await db.select().from(missionOrders).orderBy(desc(missionOrders.createdAt));
+  }
+
+  async createMissionOrder(order: InsertMissionOrder): Promise<MissionOrder> {
+    const orderNumber = `MO-${Date.now()}`;
+    const [newOrder] = await db
+      .insert(missionOrders)
+      .values({ ...order, orderNumber })
+      .returning();
+    return newOrder;
+  }
+
+  async updateMissionOrder(id: string, orderData: Partial<InsertMissionOrder>): Promise<MissionOrder | undefined> {
+    const [updated] = await db
+      .update(missionOrders)
+      .set({ ...orderData, updatedAt: new Date() })
+      .where(eq(missionOrders.id, id))
+      .returning();
+    return updated;
+  }
+
+  // Travel operations
+  async getTravels(): Promise<Travel[]> {
+    return await db.select().from(travels).orderBy(desc(travels.createdAt));
+  }
+
+  async createTravel(travel: InsertTravel): Promise<Travel> {
+    const [newTravel] = await db
+      .insert(travels)
+      .values(travel)
+      .returning();
+    return newTravel;
+  }
+
+  async updateTravel(id: string, travelData: Partial<InsertTravel>): Promise<Travel | undefined> {
+    const [updated] = await db
+      .update(travels)
+      .set({ ...travelData, updatedAt: new Date() })
+      .where(eq(travels.id, id))
+      .returning();
+    return updated;
+  }
+
+  // Organizational operations
+  async getDirections(): Promise<any[]> {
+    return await db.select().from(directions);
+  }
+
+  async getPoles(): Promise<any[]> {
+    return await db.select().from(poles);
+  }
+
+  async getUnits(): Promise<any[]> {
+    return await db.select().from(units);
   }
 
   // Dashboard stats

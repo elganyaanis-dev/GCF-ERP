@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertEmployeeSchema, insertProjectSchema, insertDocumentSchema, insertLeaveSchema, insertPayrollSchema, insertFormationSchema, insertNotificationSchema } from "@shared/schema";
+import { insertEmployeeSchema, insertProjectSchema, insertDocumentSchema, insertLeaveSchema, insertPayrollSchema, insertFormationSchema, insertNotificationSchema, insertConversationSchema, insertMessageSchema, insertMissionOrderSchema, insertTravelSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -320,16 +320,166 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ============ ANALYTICS ROUTES ============
   app.get('/api/analytics', isAuthenticated, async (req, res) => {
     try {
-      // Placeholder analytics data
-      res.json({
-        totalEmployees: 0,
-        activeProjects: 0,
-        totalDocuments: 0,
-        recentProjects: [],
-      });
+      const stats = await storage.getDashboardStats();
+      res.json(stats);
     } catch (error) {
       console.error("Error fetching analytics:", error);
       res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
+  // ============ MESSAGING ROUTES ============
+  app.get('/api/conversations', isAuthenticated, async (req: any, res) => {
+    try {
+      const conversations = await storage.getConversations(req.user.claims.sub);
+      res.json(conversations);
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+      res.status(500).json({ message: "Failed to fetch conversations" });
+    }
+  });
+
+  app.post('/api/conversations', isAuthenticated, async (req: any, res) => {
+    try {
+      const data = insertConversationSchema.parse({
+        ...req.body,
+        createdBy: req.user.claims.sub,
+      });
+      const conversation = await storage.createConversation(data);
+      
+      // Add creator as participant
+      await storage.addParticipant(conversation.id, req.user.claims.sub);
+      
+      res.status(201).json(conversation);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input", errors: error.errors });
+      }
+      console.error("Error creating conversation:", error);
+      res.status(500).json({ message: "Failed to create conversation" });
+    }
+  });
+
+  app.get('/api/conversations/:id/messages', isAuthenticated, async (req, res) => {
+    try {
+      const messages = await storage.getMessages(req.params.id);
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  app.post('/api/conversations/:id/messages', isAuthenticated, async (req: any, res) => {
+    try {
+      const data = insertMessageSchema.parse({
+        ...req.body,
+        conversationId: req.params.id,
+        senderId: req.user.claims.sub,
+      });
+      const message = await storage.sendMessage(data);
+      res.status(201).json(message);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input", errors: error.errors });
+      }
+      console.error("Error sending message:", error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  app.post('/api/conversations/:id/participants', isAuthenticated, async (req, res) => {
+    try {
+      const { userId } = req.body;
+      await storage.addParticipant(req.params.id, userId);
+      res.json({ message: "Participant added" });
+    } catch (error) {
+      console.error("Error adding participant:", error);
+      res.status(500).json({ message: "Failed to add participant" });
+    }
+  });
+
+  // ============ MISSION ORDERS ROUTES ============
+  app.get('/api/mission-orders', isAuthenticated, async (req, res) => {
+    try {
+      const orders = await storage.getMissionOrders();
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching mission orders:", error);
+      res.status(500).json({ message: "Failed to fetch mission orders" });
+    }
+  });
+
+  app.post('/api/mission-orders', isAuthenticated, async (req, res) => {
+    try {
+      const data = insertMissionOrderSchema.parse(req.body);
+      const order = await storage.createMissionOrder(data);
+      res.status(201).json(order);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input", errors: error.errors });
+      }
+      console.error("Error creating mission order:", error);
+      res.status(500).json({ message: "Failed to create mission order" });
+    }
+  });
+
+  app.patch('/api/mission-orders/:id', isAuthenticated, async (req, res) => {
+    try {
+      const data = insertMissionOrderSchema.partial().parse(req.body);
+      const order = await storage.updateMissionOrder(req.params.id, data);
+      if (!order) {
+        return res.status(404).json({ message: "Mission order not found" });
+      }
+      res.json(order);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input", errors: error.errors });
+      }
+      console.error("Error updating mission order:", error);
+      res.status(500).json({ message: "Failed to update mission order" });
+    }
+  });
+
+  // ============ TRAVELS ROUTES ============
+  app.get('/api/travels', isAuthenticated, async (req, res) => {
+    try {
+      const travels = await storage.getTravels();
+      res.json(travels);
+    } catch (error) {
+      console.error("Error fetching travels:", error);
+      res.status(500).json({ message: "Failed to fetch travels" });
+    }
+  });
+
+  app.post('/api/travels', isAuthenticated, async (req, res) => {
+    try {
+      const data = insertTravelSchema.parse(req.body);
+      const travel = await storage.createTravel(data);
+      res.status(201).json(travel);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input", errors: error.errors });
+      }
+      console.error("Error creating travel:", error);
+      res.status(500).json({ message: "Failed to create travel" });
+    }
+  });
+
+  app.patch('/api/travels/:id', isAuthenticated, async (req, res) => {
+    try {
+      const data = insertTravelSchema.partial().parse(req.body);
+      const travel = await storage.updateTravel(req.params.id, data);
+      if (!travel) {
+        return res.status(404).json({ message: "Travel not found" });
+      }
+      res.json(travel);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input", errors: error.errors });
+      }
+      console.error("Error updating travel:", error);
+      res.status(500).json({ message: "Failed to update travel" });
     }
   });
 

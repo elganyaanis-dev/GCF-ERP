@@ -16,6 +16,9 @@ import Projects from "@/pages/projects";
 import Documents from "@/pages/documents";
 import Analytics from "@/pages/analytics";
 import Settings from "@/pages/settings";
+import Messaging from "@/pages/messaging";
+import MissionOrders from "@/pages/mission-orders";
+import Travels from "@/pages/travels";
 import { useAuth } from "@/hooks/useAuth";
 
 function AuthRouter() {
@@ -63,6 +66,9 @@ function AuthRouter() {
               <Route path="/documents" component={Documents} />
               <Route path="/analytics" component={Analytics} />
               <Route path="/settings" component={Settings} />
+              <Route path="/messaging" component={Messaging} />
+              <Route path="/mission-orders" component={MissionOrders} />
+              <Route path="/travels" component={Travels} />
               <Route component={NotFound} />
             </Switch>
           </main>

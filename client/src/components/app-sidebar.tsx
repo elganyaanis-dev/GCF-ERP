@@ -9,7 +9,10 @@ import {
   DollarSign,
   GraduationCap,
   ChevronDown,
-  Building2
+  Building2,
+  MessageSquare,
+  Briefcase,
+  MapPin
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
@@ -72,6 +75,19 @@ export function AppSidebar() {
       icon: BarChart3,
     },
     {
+      title: "Gestion des Missions",
+      icon: Briefcase,
+      items: [
+        { title: "Ordres de Mission", url: "/mission-orders", icon: Briefcase },
+        { title: "Déplacements", url: "/travels", icon: MapPin },
+      ],
+    },
+    {
+      title: "Messagerie",
+      url: "/messaging",
+      icon: MessageSquare,
+    },
+    {
       title: "Paramètres",
       url: "/settings",
       icon: Settings,
@@ -107,7 +123,7 @@ export function AppSidebar() {
               {menuItems.map((item) => {
                 if (item.items) {
                   return (
-                    <Collapsible key={item.title} asChild defaultOpen={location.startsWith('/employees') || location.startsWith('/leaves') || location.startsWith('/payroll') || location.startsWith('/formations')}>
+                    <Collapsible key={item.title} asChild defaultOpen={location.startsWith('/employees') || location.startsWith('/leaves') || location.startsWith('/payroll') || location.startsWith('/formations') || location.startsWith('/mission-orders') || location.startsWith('/travels')}>
                       <SidebarMenuItem>
                         <CollapsibleTrigger asChild>
                           <SidebarMenuButton data-testid={`menu-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>

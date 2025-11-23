@@ -52,6 +52,7 @@ function updateUserSession(
 
 async function upsertUser(
   claims: any,
+  subsidiaryId: string = "gcf",
 ) {
   const email = claims["email"];
   const firstName = claims["first_name"];
@@ -73,6 +74,7 @@ async function upsertUser(
       lastName: lastName,
       profileImageUrl: claims["profile_image_url"],
       isPreRegistered: false,
+      subsidiaryId: subsidiaryId,
     });
     throw new Error("Access denied: You must be registered as an employee to access this system");
   }
@@ -88,6 +90,7 @@ async function upsertUser(
     role: isSupremeAdmin ? "supreme_admin" : "user",
     accreditationLevel: isSupremeAdmin ? "5" : "0",
     isSupremeAdmin: isSupremeAdmin,
+    subsidiaryId: subsidiaryId,
   });
 }
 
@@ -104,9 +107,12 @@ export async function setupAuth(app: Express) {
     verified: passport.AuthenticateCallback
   ) => {
     try {
-      const user = {};
+      const user = {} as any;
       updateUserSession(user, tokens);
-      await upsertUser(tokens.claims());
+      
+      // Get subsidiary from session or default to gcf
+      const subsidiaryId = (user as any)?.subsidiary_id || "gcf";
+      await upsertUser(tokens.claims(), subsidiaryId);
       verified(null, user);
     } catch (error: any) {
       // Pass error to callback - access will be denied
@@ -140,6 +146,10 @@ export async function setupAuth(app: Express) {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
+    const subsidiary = req.query.subsidiary as string || "gcf";
+    // Store subsidiary in session
+    (req.session as any).subsidiary_id = subsidiary;
+    
     ensureStrategy(req.hostname);
     passport.authenticate(`replitauth:${req.hostname}`, {
       prompt: "login consent",

@@ -1,62 +1,44 @@
-import { Users, FileText, BarChart3, Globe, Calendar } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { ERPLayout } from "@/components/erp-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { Users, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ERPEmployees() {
+  const { data: employees = [], isLoading } = useQuery<any[]>({
+    queryKey: ["/api/employees"],
+  });
+
   const menuItems = [
-    { label: "Tableau de bord", icon: BarChart3, path: "/dashboard" },
+    { label: "Dashboard", icon: Users, path: "/dashboard" },
     { label: "Employés", icon: Users, path: "/employees" },
-    { label: "Paie", icon: Calendar, path: "/payroll" },
-    { label: "Documents", icon: FileText, path: "/documents" },
-    { label: "Marchés Publics", icon: Globe, path: "/tenders" },
   ];
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-screen">Chargement...</div>;
+  }
 
   return (
     <ERPLayout menuItems={menuItems} title="Gestion des Employés">
-      <div className="p-8 space-y-6">
-        <Card className="hover-elevate transition-all">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" /> Employés
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
-              Gestion complète avec profils, contrats, allocations et conformité algérienne
-            </p>
-            <div className="flex gap-3">
-              <Button>Ajouter un employé</Button>
-              <Button variant="outline">Importer Excel</Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Employés</h2>
+          <Button data-testid="button-add-employee">
+            <Plus className="w-4 h-4 mr-2" /> Ajouter
+          </Button>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Total Employés</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">CDI/CDD</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">En Congés</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {employees?.length ? (
+            employees.map((emp: any) => (
+              <Card key={emp.id} className="p-4">
+                <p className="font-semibold">{emp.firstName} {emp.lastName}</p>
+                <p className="text-sm text-muted-foreground">{emp.position}</p>
+              </Card>
+            ))
+          ) : (
+            <p className="text-muted-foreground">Aucun employé trouvé</p>
+          )}
         </div>
       </div>
     </ERPLayout>

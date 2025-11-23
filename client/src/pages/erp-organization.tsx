@@ -1,71 +1,36 @@
-import { Users, BarChart3, Globe, FileText, Building2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { ERPLayout } from "@/components/erp-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { Layers, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ERPOrganization() {
+  const { data: structure, isLoading } = useQuery({
+    queryKey: ["/api/organization"],
+  });
+
   const menuItems = [
-    { label: "Tableau de bord", icon: BarChart3, path: "/dashboard" },
-    { label: "Organisation", icon: Building2, path: "/organization" },
-    { label: "Employés", icon: Users, path: "/employees" },
-    { label: "Documents", icon: FileText, path: "/documents" },
-    { label: "Marchés Publics", icon: Globe, path: "/tenders" },
+    { label: "Dashboard", icon: Layers, path: "/dashboard" },
+    { label: "Organisation", icon: Layers, path: "/organization" },
   ];
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-screen">Chargement...</div>;
+  }
 
   return (
     <ERPLayout menuItems={menuItems} title="Structure Organisationnelle">
-      <div className="p-8 space-y-6">
-        <Card className="hover-elevate transition-all">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" /> Organigramme Autonome
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
-              Directions, pôles, services, unités avec hiérarchie
-            </p>
-            <div className="flex gap-3">
-              <Button>Ajouter Direction</Button>
-              <Button variant="outline">Voir Hiérarchie</Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Directions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Pôles</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Services</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Unités</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
+      <div className="p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Organisation</h2>
+          <Button data-testid="button-add-unit">
+            <Plus className="w-4 h-4 mr-2" /> Ajouter
+          </Button>
         </div>
+
+        <Card className="p-6">
+          <p className="text-muted-foreground">Organigramme en construction</p>
+        </Card>
       </div>
     </ERPLayout>
   );

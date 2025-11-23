@@ -18,8 +18,8 @@ interface ERPLayoutProps {
 
 export function ERPLayout({ children, menuItems, title }: ERPLayoutProps) {
   const [, navigate] = useLocation();
-  const selectedERP = (sessionStorage.getItem("selected_erp") || "gcf") as keyof typeof ERP_CONFIG;
-  const erpConfig = ERP_CONFIG[selectedERP];
+  const selectedERP = sessionStorage.getItem("selected_erp") || "gcf";
+  const erpConfig = ERP_CONFIG[selectedERP as keyof typeof ERP_CONFIG];
 
   const style = {
     "--sidebar-width": "16rem",

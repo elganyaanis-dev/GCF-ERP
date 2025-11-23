@@ -1,74 +1,34 @@
-import { Globe, BarChart3, ExternalLink, FileText, Users } from "lucide-react";
 import { ERPLayout } from "@/components/erp-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Building2 } from "lucide-react";
 import { TENDER_PLATFORMS } from "@/config/erp";
 
 export default function ERPTenders() {
   const menuItems = [
-    { label: "Tableau de bord", icon: BarChart3, path: "/dashboard" },
-    { label: "Marchés Publics", icon: Globe, path: "/tenders" },
-    { label: "Employés", icon: Users, path: "/employees" },
-    { label: "Documents", icon: FileText, path: "/documents" },
+    { label: "Dashboard", icon: Building2, path: "/dashboard" },
+    { label: "Marchés", icon: Building2, path: "/tenders" },
   ];
 
   return (
-    <ERPLayout menuItems={menuItems} title="Marchés Publics Algérie">
-      <div className="p-8 space-y-6">
-        <Card className="hover-elevate transition-all">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5" /> Plateformes Algériennes
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-6">
-              Accès direct aux 7 principales plateformes de marchés publics algériens
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {TENDER_PLATFORMS.map((platform) => (
-                <a
-                  key={platform.url}
-                  href={platform.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex"
-                >
-                  <Button variant="outline" className="w-full justify-between hover-elevate">
-                    <span>{platform.name}</span>
-                    <ExternalLink className="h-4 w-4 ml-2" />
-                  </Button>
-                </a>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+    <ERPLayout menuItems={menuItems} title="Marchés Publics Algériens">
+      <div className="p-6 space-y-6">
+        <h2 className="text-2xl font-bold">Plateformes de Marchés Publics</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Marchés Suivis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Participations</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Remportés</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {TENDER_PLATFORMS.map((platform) => (
+            <a
+              key={platform.url}
+              href={platform.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid={`link-tender-${platform.name.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              <Card className="p-6 hover-elevate cursor-pointer transition-all">
+                <p className="font-semibold text-lg">{platform.name}</p>
+                <p className="text-sm text-muted-foreground mt-2">Accéder →</p>
+              </Card>
+            </a>
+          ))}
         </div>
       </div>
     </ERPLayout>

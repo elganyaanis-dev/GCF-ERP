@@ -1,70 +1,44 @@
-import { FolderKanban, BarChart3, Globe, FileText, Calendar, Users } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { ERPLayout } from "@/components/erp-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { BarChart3, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ERPProjects() {
+  const { data: projects = [], isLoading } = useQuery<any[]>({
+    queryKey: ["/api/projects"],
+  });
+
   const menuItems = [
-    { label: "Tableau de bord", icon: BarChart3, path: "/dashboard" },
-    { label: "Projets", icon: FolderKanban, path: "/projects" },
-    { label: "Employés", icon: Users, path: "/employees" },
-    { label: "Documents", icon: FileText, path: "/documents" },
-    { label: "Marchés Publics", icon: Globe, path: "/tenders" },
+    { label: "Dashboard", icon: BarChart3, path: "/dashboard" },
+    { label: "Projets", icon: BarChart3, path: "/projects" },
   ];
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-screen">Chargement...</div>;
+  }
 
   return (
     <ERPLayout menuItems={menuItems} title="Gestion des Projets">
-      <div className="p-8 space-y-6">
-        <Card className="hover-elevate transition-all">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FolderKanban className="h-5 w-5" /> Projets & Gantt
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-4">
-              Gestion avec support Gantt, suivi budgétaire, allocation ressources
-            </p>
-            <div className="flex gap-3">
-              <Button>Créer un projet</Button>
-              <Button variant="outline">Voir Gantt</Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Projets</h2>
+          <Button data-testid="button-add-project">
+            <Plus className="w-4 h-4 mr-2" /> Nouveau
+          </Button>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Total Projets</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">En Cours</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Budget Total</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">-- DA</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Avancement Moyen</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--%</div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {projects?.length ? (
+            projects.map((proj: any) => (
+              <Card key={proj.id} className="p-4">
+                <p className="font-semibold">{proj.name}</p>
+                <p className="text-sm text-muted-foreground">{proj.status}</p>
+              </Card>
+            ))
+          ) : (
+            <p className="text-muted-foreground">Aucun projet trouvé</p>
+          )}
         </div>
       </div>
     </ERPLayout>

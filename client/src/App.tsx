@@ -6,6 +6,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { AdminChat } from "@/components/admin-chat";
+
+// Pages
 import Landing from "@/pages/landing";
 import ERPSelector from "@/pages/erp-selector";
 import ERPDashboard from "@/pages/erp-dashboard";
@@ -20,7 +22,7 @@ import AdminConsole from "@/pages/admin-console";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const [location, navigate] = useLocation();
   const [selectedERP, setSelectedERP] = useState<string | null>(() =>
     typeof window !== "undefined" ? sessionStorage.getItem("selected_erp") : null
@@ -28,8 +30,10 @@ function Router() {
 
   // Auto-navigate to dashboard when ERP is selected
   useEffect(() => {
-    if (selectedERP && 
-        !["/dashboard", "/employees", "/projects", "/documents", "/payroll", "/organization", "/tenders", "/settings", "/admin"].some(p => location.startsWith(p))) {
+    if (selectedERP && !location.includes("/dashboard") && !location.includes("/employees") && 
+        !location.includes("/projects") && !location.includes("/documents") && 
+        !location.includes("/payroll") && !location.includes("/organization") && 
+        !location.includes("/tenders") && !location.includes("/settings") && !location.includes("/admin")) {
       navigate("/dashboard");
     }
   }, [selectedERP, navigate, location]);

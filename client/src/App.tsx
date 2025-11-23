@@ -21,6 +21,7 @@ import MissionOrders from "@/pages/mission-orders";
 import Travels from "@/pages/travels";
 import Organization from "@/pages/organization";
 import OrgStructure from "@/pages/org-structure";
+import ERPCommunications from "@/pages/erp-communications";
 import { useAuth } from "@/hooks/useAuth";
 
 function AuthRouter() {
@@ -73,6 +74,7 @@ function AuthRouter() {
               <Route path="/travels" component={Travels} />
               <Route path="/organization" component={Organization} />
               <Route path="/org-structure" component={OrgStructure} />
+              <Route path="/erp-communications" component={ERPCommunications} />
               <Route component={NotFound} />
             </Switch>
           </main>

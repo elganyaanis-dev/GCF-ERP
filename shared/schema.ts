@@ -426,3 +426,29 @@ export const auditLogs = pgTable("audit_logs", {
 });
 
 export type AuditLog = typeof auditLogs.$inferSelect;
+
+// ERP Communications - Direct messages from admins to system
+export const erpCommunications = pgTable("erp_communications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  subject: varchar("subject").notNull(),
+  message: text("message").notNull(),
+  type: varchar("type").notNull(), // feedback, modification, bug, feature, urgent
+  response: text("response"),
+  respondedAt: timestamp("responded_at"),
+  status: varchar("status").default("new"), // new, read, responded, closed
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertERPCommunicationSchema = createInsertSchema(erpCommunications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  response: true,
+  respondedAt: true,
+  status: true,
+});
+
+export type InsertERPCommunication = z.infer<typeof insertERPCommunicationSchema>;
+export type ERPCommunication = typeof erpCommunications.$inferSelect;

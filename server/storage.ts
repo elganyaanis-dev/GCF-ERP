@@ -18,6 +18,7 @@ import {
   poles,
   poleServices,
   units,
+  erpCommunications,
   type User,
   type UpsertUser,
   type Employee,
@@ -440,6 +441,22 @@ export class DatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return service;
+  }
+
+  // ERP Communications
+  async getERPCommunications(userId?: string): Promise<any[]> {
+    if (userId) {
+      return await db.select().from(erpCommunications).where(eq(erpCommunications.userId, userId)).orderBy(erpCommunications.createdAt);
+    }
+    return await db.select().from(erpCommunications).orderBy(erpCommunications.createdAt);
+  }
+
+  async createERPCommunication(data: any): Promise<any> {
+    const [comm] = await db
+      .insert(erpCommunications)
+      .values(data)
+      .returning();
+    return comm;
   }
 
   // Dashboard stats

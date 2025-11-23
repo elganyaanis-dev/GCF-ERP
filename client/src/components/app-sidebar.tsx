@@ -12,7 +12,8 @@ import {
   Building2,
   MessageSquare,
   Briefcase,
-  MapPin
+  MapPin,
+  Mail
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
@@ -94,6 +95,11 @@ export function AppSidebar() {
         { title: "Structure de Base", url: "/organization", icon: Building2 },
         { title: "Directions & Services", url: "/org-structure", icon: Building2 },
       ],
+    },
+    {
+      title: "Communications ERP",
+      url: "/erp-communications",
+      icon: Mail,
     },
     {
       title: "Paramètres",

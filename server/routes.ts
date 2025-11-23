@@ -586,6 +586,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ ERP COMMUNICATIONS ROUTES ============
+  app.get('/api/erp-communications', isAuthenticated, async (req, res) => {
+    try {
+      const comms = await storage.getERPCommunications(req.user?.id);
+      res.json(comms);
+    } catch (error) {
+      console.error("Error fetching ERP communications:", error);
+      res.status(500).json({ message: "Failed to fetch communications" });
+    }
+  });
+
+  app.post('/api/erp-communications', isAuthenticated, async (req, res) => {
+    try {
+      const comm = await storage.createERPCommunication({
+        userId: req.user.id,
+        subject: req.body.subject,
+        message: req.body.message,
+        type: req.body.type || "feedback",
+      });
+      res.status(201).json(comm);
+    } catch (error) {
+      console.error("Error creating ERP communication:", error);
+      res.status(500).json({ message: "Failed to create communication" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

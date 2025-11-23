@@ -190,29 +190,33 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={user?.profileImageUrl} alt={user?.firstName || "User"} />
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              {user?.firstName?.[0]}{user?.lastName?.[0]}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate" data-testid="text-user-name">
-              {user?.firstName} {user?.lastName}
-            </p>
-            <p className="text-xs text-muted-foreground truncate" data-testid="text-user-email">
-              {user?.email}
-            </p>
-          </div>
-        </div>
-        <a
-          href="/api/logout"
-          className="mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          data-testid="link-logout"
-        >
-          Se déconnecter
-        </a>
+        {user && (
+          <>
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                {(user as any)?.image && <AvatarImage src={(user as any).image} alt={(user as any).name || "User"} />}
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  {((user as any)?.name || 'U').substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-sidebar-foreground truncate" data-testid="text-user-name">
+                  {(user as any)?.name || 'User'}
+                </p>
+                <p className="text-xs text-muted-foreground truncate" data-testid="text-user-email">
+                  {(user as any)?.email}
+                </p>
+              </div>
+            </div>
+            <a
+              href="/api/logout"
+              className="mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              data-testid="link-logout"
+            >
+              Se déconnecter
+            </a>
+          </>
+        )}
       </SidebarFooter>
     </Sidebar>
   );

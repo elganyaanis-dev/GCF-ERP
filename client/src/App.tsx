@@ -4,58 +4,90 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { Header } from "@/components/header";
-import NotFound from "@/pages/not-found";
-import Landing from "@/pages/landing";
-import SubsidiarySelector from "@/pages/subsidiary-selector";
-import Dashboard from "@/pages/dashboard";
-import Employees from "@/pages/employees";
-import Leaves from "@/pages/leaves";
-import Payroll from "@/pages/payroll";
-import Formations from "@/pages/formations";
-import Projects from "@/pages/projects";
-import Documents from "@/pages/documents";
-import Analytics from "@/pages/analytics";
-import Settings from "@/pages/settings";
-import Messaging from "@/pages/messaging";
-import MissionOrders from "@/pages/mission-orders";
-import Travels from "@/pages/travels";
-import Organization from "@/pages/organization";
-import OrgStructure from "@/pages/org-structure";
-import ERPCommunications from "@/pages/erp-communications";
-import AdminConsole from "@/pages/admin-console";
-import Subsidiaries from "@/pages/subsidiaries";
 import { useAuth } from "@/hooks/useAuth";
-import { SubsidiaryContext } from "@/hooks/useSubsidiary";
 import { AdminChat } from "@/components/admin-chat";
+
+// Pages
+import Landing from "@/pages/landing";
+import ERPSelector from "@/pages/erp-selector";
+import ERPDashboard from "@/pages/erp-dashboard";
+import ERPEmployees from "@/pages/erp-employees";
+import ERPProjects from "@/pages/erp-projects";
+import ERPDocuments from "@/pages/erp-documents";
+import ERPPayroll from "@/pages/erp-payroll";
+import ERPOrganization from "@/pages/erp-organization";
+import ERPSettings from "@/pages/erp-settings";
+import ERPTenders from "@/pages/erp-tenders";
+import AdminConsole from "@/pages/admin-console";
+import NotFound from "@/pages/not-found";
+
+export const ERP_CONFIG: Record<string, { id: string; name: string; subtitle: string; color: string; logo: string }> = {
+  gcf: {
+    id: "gcf",
+    name: "GCF SPA ALGÉRIE",
+    subtitle: "Holding Principal",
+    color: "from-blue-600 to-blue-800",
+    logo: "channels4_profile_1763910974831.jpg",
+  },
+  railelectr: {
+    id: "railelectr",
+    name: "RAILELECTR SPA",
+    subtitle: "Électrification Ferroviaire",
+    color: "from-yellow-600 to-yellow-800",
+    logo: "IMG_20251123_161512_1763910974884.png",
+  },
+  infrarail: {
+    id: "infrarail",
+    name: "INFRARAIL SPA",
+    subtitle: "Infrastructures Ferroviaires",
+    color: "from-orange-600 to-orange-800",
+    logo: "IMG_20251123_161512_1763910974884.png",
+  },
+  infrafer: {
+    id: "infrafer",
+    name: "INFRAFER EPE",
+    subtitle: "Transport & Logistique",
+    color: "from-green-600 to-green-800",
+    logo: "IMG_20251123_161512_1763910974884.png",
+  },
+  setirail: {
+    id: "setirail",
+    name: "SETIRAIL SPA",
+    subtitle: "Ingénierie Ferroviaire",
+    color: "from-purple-600 to-purple-800",
+    logo: "IMG_20251123_161512_1763910974884.png",
+  },
+};
+
+export const TENDER_PLATFORMS = [
+  { name: "DZ Tenders", url: "https://www.dztenders.com/fr/" },
+  { name: "DZ Marchés", url: "https://dzmarches.net/" },
+  { name: "Tenders-360", url: "https://www.tenders-360.com/" },
+  { name: "SmartMarchés", url: "https://smartmarches.com/SmartPlus/" },
+  { name: "MS Marchés", url: "https://www.msmarches.com/" },
+  { name: "TopTenders", url: "https://www.toptenderspro.com/" },
+  { name: "Algérie Marchés", url: "https://algeriemarches.dz/" },
+];
 
 function AuthRouter() {
   const { isAuthenticated, isLoading, user } = useAuth();
-  const [location, navigate] = useLocation();
-  const [subsidiaryId, setSubsidiaryId] = useState<string>(() => {
-    return sessionStorage.getItem("selected_subsidiary") || "gcf";
-  });
+  const [location] = useLocation();
+  const [selectedERP, setSelectedERP] = useState<string | null>(() =>
+    sessionStorage.getItem("selected_erp")
+  );
 
+  // Auto-redirect from "/" to ERP selector
   useEffect(() => {
-    if (user && (user as any)?.subsidiary_id) {
-      setSubsidiaryId((user as any).subsidiary_id);
+    if (!selectedERP && location === "/" && !isLoading && isAuthenticated) {
+      sessionStorage.removeItem("selected_erp");
+      setSelectedERP(null);
     }
-  }, [user]);
-
-  // Redirect from "/" to "/dashboard" when subsidiary already selected
-  useEffect(() => {
-    const hasSelectedSubsidiary = sessionStorage.getItem("selected_subsidiary");
-    if ((location === "/" || location === "") && hasSelectedSubsidiary && !isLoading) {
-      navigate("/dashboard");
-    }
-  }, [location, navigate, isLoading]);
+  }, [location, isLoading, isAuthenticated, selectedERP]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -64,52 +96,31 @@ function AuthRouter() {
     return <Landing />;
   }
 
-  const hasSelectedSubsidiary = sessionStorage.getItem("selected_subsidiary");
-  
-  // Show subsidiary selector on / only if not selected yet
-  if ((location === "/" || location === "") && !hasSelectedSubsidiary) {
-    return <SubsidiarySelector />;
+  // Show ERP selector if no ERP selected
+  if (!selectedERP) {
+    return (
+      <ERPSelector
+        onSelectERP={(erp) => {
+          sessionStorage.setItem("selected_erp", erp);
+          setSelectedERP(erp);
+        }}
+      />
+    );
   }
 
-  // Custom sidebar width for ERP application
-  const style = {
-    "--sidebar-width": "20rem",
-    "--sidebar-width-icon": "4rem",
-  };
-
   return (
-    <SubsidiaryContext.Provider value={{ subsidiary_id: subsidiaryId }}>
-      <SidebarProvider style={style as React.CSSProperties}>
-        <div className="flex h-screen w-full">
-          <AppSidebar />
-          <div className="flex flex-col flex-1 overflow-hidden">
-            <Header />
-            <main className="flex-1 overflow-auto">
-              <Switch>
-                <Route path="/dashboard" component={Dashboard} />
-                <Route path="/subsidiaries" component={Subsidiaries} />
-                <Route path="/employees" component={Employees} />
-                <Route path="/leaves" component={Leaves} />
-                <Route path="/payroll" component={Payroll} />
-                <Route path="/formations" component={Formations} />
-                <Route path="/projects" component={Projects} />
-                <Route path="/documents" component={Documents} />
-                <Route path="/analytics" component={Analytics} />
-                <Route path="/settings" component={Settings} />
-                <Route path="/messaging" component={Messaging} />
-                <Route path="/mission-orders" component={MissionOrders} />
-                <Route path="/travels" component={Travels} />
-                <Route path="/organization" component={Organization} />
-                <Route path="/org-structure" component={OrgStructure} />
-                <Route path="/erp-communications" component={ERPCommunications} />
-                <Route path="/admin-console" component={AdminConsole} />
-                <Route component={NotFound} />
-              </Switch>
-            </main>
-          </div>
-        </div>
-      </SidebarProvider>
-    </SubsidiaryContext.Provider>
+    <Switch>
+      <Route path="/dashboard" component={ERPDashboard} />
+      <Route path="/employees" component={ERPEmployees} />
+      <Route path="/projects" component={ERPProjects} />
+      <Route path="/documents" component={ERPDocuments} />
+      <Route path="/payroll" component={ERPPayroll} />
+      <Route path="/organization" component={ERPOrganization} />
+      <Route path="/tenders" component={ERPTenders} />
+      <Route path="/settings" component={ERPSettings} />
+      <Route path="/admin" component={AdminConsole} />
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 

@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, TrendingUp, Users, FileText, DollarSign } from "lucide-react";
+import { BarChart3, TrendingUp, Users, FileText, DollarSign, LineChart, PieChart } from "lucide-react";
 import { ERPLayout } from "@/components/erp-layout";
+import { StatCard } from "@/components/stat-card";
 
 export default function ERPReports() {
   const menuItems = [
@@ -33,25 +34,33 @@ export default function ERPReports() {
       label: "Total Employés",
       value: stats?.totalEmployees || "0",
       icon: Users,
-      color: "text-blue-600",
+      color: "bg-blue-600",
+      trend: 12,
+      description: "Croissance stable"
     },
     {
       label: "Projets Actifs",
       value: stats?.activeProjects || "0",
       icon: TrendingUp,
-      color: "text-green-600",
+      color: "bg-green-600",
+      trend: 8,
+      description: "En cours de réalisation"
     },
     {
       label: "Documents",
       value: stats?.totalDocuments || "0",
       icon: FileText,
-      color: "text-purple-600",
+      color: "bg-purple-600",
+      trend: 25,
+      description: "Archivés et actifs"
     },
     {
-      label: "Paie Totale",
-      value: stats?.totalPayroll ? `${Math.round(stats.totalPayroll / 1000)}K DZD` : "0",
+      label: "Budget Utilisé",
+      value: "68%",
       icon: DollarSign,
-      color: "text-amber-600",
+      color: "bg-amber-600",
+      trend: -5,
+      description: "Environ 2.3M DZD"
     },
   ];
 
@@ -66,80 +75,101 @@ export default function ERPReports() {
           <p className="text-muted-foreground mt-2">Vue d'ensemble des performances clés et métriques</p>
         </div>
 
-        {/* KPIs */}
+        {/* KPIs Premium */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpis.map((kpi, idx) => {
-            const Icon = kpi.icon;
-            return (
-              <Card key={idx} className="hover-elevate">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-medium">{kpi.label}</CardTitle>
-                    <Icon className={`w-5 h-5 ${kpi.color}`} />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold">{kpi.value}</p>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {kpis.map((kpi, idx) => (
+            <StatCard
+              key={idx}
+              label={kpi.label}
+              value={kpi.value}
+              icon={kpi.icon}
+              color={kpi.color}
+              trend={kpi.trend}
+              description={kpi.description}
+            />
+          ))}
         </div>
 
-        {/* Reports */}
+        {/* Metrics */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="hover-elevate">
-            <CardHeader>
-              <CardTitle>Rapport Mensuel</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2">
+                <LineChart className="w-5 h-5 text-blue-600" />
+                Rapport Mensuel
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-900 rounded-md">
-                <span className="text-sm font-medium">Performance RH</span>
-                <Badge>85%</Badge>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-900 rounded-md">
-                <span className="text-sm font-medium">Avancement Projets</span>
-                <Badge>72%</Badge>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-900 rounded-md">
-                <span className="text-sm font-medium">Conformité</span>
-                <Badge>95%</Badge>
-              </div>
+            <CardContent className="space-y-3">
+              {[
+                { label: "Performance RH", value: "85%", color: "from-blue-400 to-blue-600" },
+                { label: "Avancement Projets", value: "72%", color: "from-green-400 to-green-600" },
+                { label: "Conformité Réglementaire", value: "95%", color: "from-purple-400 to-purple-600" },
+              ].map((item) => (
+                <div key={item.label} className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">{item.label}</span>
+                    <Badge className="bg-gradient-to-r" style={{ background: `linear-gradient(to right, var(--color1), var(--color2))` }}>
+                      {item.value}
+                    </Badge>
+                  </div>
+                  <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                    <div className={`h-full bg-gradient-to-r ${item.color}`} style={{ width: item.value }}></div>
+                  </div>
+                </div>
+              ))}
             </CardContent>
           </Card>
 
           <Card className="hover-elevate">
-            <CardHeader>
-              <CardTitle>Indicateurs Clés</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2">
+                <PieChart className="w-5 h-5 text-orange-600" />
+                Indicateurs Clés (KPIs)
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-900 rounded-md">
-                <span className="text-sm font-medium">Taux Satisfaction</span>
-                <Badge variant="secondary">4.2/5</Badge>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-900 rounded-md">
-                <span className="text-sm font-medium">Productivité</span>
-                <Badge>92%</Badge>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-900 rounded-md">
-                <span className="text-sm font-medium">Budget Utilisé</span>
-                <Badge>68%</Badge>
-              </div>
+            <CardContent className="space-y-3">
+              {[
+                { label: "Taux de Satisfaction", value: "4.2/5.0", status: "Excellent" },
+                { label: "Productivité Globale", value: "92%", status: "Très Bon" },
+                { label: "Budget Maîtrisé", value: "68%", status: "Normal" },
+                { label: "Qualité Livrables", value: "89%", status: "Bon" },
+              ].map((item) => (
+                <div key={item.label} className="flex justify-between items-center p-3 bg-muted/50 rounded-lg hover-elevate">
+                  <div>
+                    <p className="text-sm font-medium">{item.label}</p>
+                    <p className="text-xs text-muted-foreground">{item.status}</p>
+                  </div>
+                  <Badge variant="outline" className="text-base">{item.value}</Badge>
+                </div>
+              ))}
             </CardContent>
           </Card>
         </div>
 
         {/* Detailed Reports */}
-        <Card className="hover-elevate">
+        <Card className="hover-elevate border-l-4 border-l-indigo-600">
           <CardHeader>
-            <CardTitle>Rapports Disponibles</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-indigo-600" />
+              Rapports Professionnels Disponibles
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {["Rapport RH Mensuel", "Analyse Budgétaire", "Performance Projets", "Conformité Réglementaire", "Audit Trail", "Analyse Timesheet"].map((report) => (
-                <div key={report} className="flex items-center justify-between p-3 border rounded-md hover-elevate cursor-pointer">
-                  <span className="text-sm">{report}</span>
-                  <Badge variant="outline">Télécharger</Badge>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {[
+                { name: "Rapport RH Mensuel", desc: "Paie, congés, formations" },
+                { name: "Analyse Budgétaire", desc: "Dépenses vs prévisions" },
+                { name: "Performance Projets", desc: "Avancements et livrables" },
+                { name: "Conformité Réglementaire", desc: "Algérie & normes DCE" },
+                { name: "Audit Trail Complet", desc: "Historique des modifications" },
+                { name: "Analytics Timesheet", desc: "Heures et productivité" },
+              ].map((report) => (
+                <div key={report.name} className="flex items-start justify-between p-4 border rounded-lg hover-elevate cursor-pointer bg-card/50 transition-all">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{report.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{report.desc}</p>
+                  </div>
+                  <Badge className="ml-2 bg-gradient-to-r from-indigo-500 to-purple-500">PDF</Badge>
                 </div>
               ))}
             </div>

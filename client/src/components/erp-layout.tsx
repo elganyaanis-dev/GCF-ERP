@@ -3,8 +3,9 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 import { ERP_CONFIG, TENDER_PLATFORMS } from "@/config/erp";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
-import { LucideIcon, LogOut, ArrowLeftRight } from "lucide-react";
+import { LucideIcon, LogOut, ArrowLeftRight, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface MenuItem {
   label: string;
@@ -102,22 +103,34 @@ export function ERPLayout({ children, menuItems, title }: ERPLayoutProps) {
         </Sidebar>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="flex items-center justify-between px-6 py-4 border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
+          <header className="flex items-center justify-between px-6 py-4 border-b bg-gradient-to-r from-card/80 to-card/50 backdrop-blur-md sticky top-0 z-40 shadow-sm">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover-elevate" data-testid="button-sidebar-toggle" />
-              <div>
-                <h1 className="text-2xl font-bold">{title}</h1>
-                <p className="text-xs text-muted-foreground">
+              <div className="flex-1">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
+                    {title}
+                  </h1>
+                  <Badge variant="secondary" className="text-xs">
+                    {erpConfig?.code.toUpperCase()}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
                   {erpConfig?.subtitle}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4 pl-6 border-l">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Calendar className="w-4 h-4" />
+                <span>{new Date().toLocaleDateString('fr-FR')}</span>
+              </div>
+
               <div className="text-right">
                 <p className="text-sm font-medium" data-testid="text-user-email">{userEmail}</p>
                 {isSupremeAdmin && (
-                  <p className="text-xs text-purple-600 font-semibold">Supreme Admin</p>
+                  <Badge className="mt-1 bg-purple-600 hover:bg-purple-700">Supreme Admin</Badge>
                 )}
               </div>
 
@@ -145,7 +158,7 @@ export function ERPLayout({ children, menuItems, title }: ERPLayoutProps) {
             </div>
           </header>
 
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-auto bg-gradient-to-br from-background via-muted/5 to-background">
             {children}
           </main>
         </div>

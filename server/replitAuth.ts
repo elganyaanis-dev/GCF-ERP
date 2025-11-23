@@ -53,12 +53,35 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
+  const email = claims["email"];
+  const firstName = claims["first_name"];
+  const lastName = claims["last_name"];
+  
+  // Check if user is pre-registered in employees table
+  const preRegisteredEmployee = await storage.checkPreRegistration(email, firstName, lastName);
+  
+  if (!preRegisteredEmployee) {
+    console.warn(`Access denied: User ${email} is not pre-registered in the system`);
+    // Still create user but mark as not pre-registered
+    await storage.upsertUser({
+      id: claims["sub"],
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+      profileImageUrl: claims["profile_image_url"],
+      isPreRegistered: false,
+    });
+    throw new Error("Access denied: You must be registered as an employee to access this system");
+  }
+  
+  // User is pre-registered, create/update with full access
   await storage.upsertUser({
     id: claims["sub"],
-    email: claims["email"],
-    firstName: claims["first_name"],
-    lastName: claims["last_name"],
+    email: email,
+    firstName: firstName,
+    lastName: lastName,
     profileImageUrl: claims["profile_image_url"],
+    isPreRegistered: true,
   });
 }
 
@@ -74,10 +97,16 @@ export async function setupAuth(app: Express) {
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
-    verified(null, user);
+    try {
+      const user = {};
+      updateUserSession(user, tokens);
+      await upsertUser(tokens.claims());
+      verified(null, user);
+    } catch (error: any) {
+      // Pass error to callback - access will be denied
+      console.error("Authentication error:", error.message);
+      verified(error);
+    }
   };
 
   // Keep track of registered strategies

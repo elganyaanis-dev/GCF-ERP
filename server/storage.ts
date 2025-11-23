@@ -19,6 +19,16 @@ import {
   poleServices,
   units,
   erpCommunications,
+  partners,
+  projectTypes,
+  salaryGrids,
+  allowances,
+  bonuses,
+  travelExpenses,
+  socialBenefits,
+  employeeDonations,
+  employeeLoans,
+  serviceCustomizations,
   type User,
   type UpsertUser,
   type Employee,
@@ -44,6 +54,17 @@ import {
   type InsertMissionOrder,
   type Travel,
   type InsertTravel,
+  type Partner,
+  type InsertPartner,
+  type ProjectType,
+  type SalaryGrid,
+  type Allowance,
+  type Bonus,
+  type TravelExpense,
+  type SocialBenefit,
+  type EmployeeDonation,
+  type EmployeeLoan,
+  type ServiceCustomization,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -53,6 +74,7 @@ export interface IStorage {
   // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  checkPreRegistration(email: string, firstName?: string, lastName?: string): Promise<Employee | undefined>;
 
   // Employee operations
   getEmployees(): Promise<Employee[]>;
@@ -457,6 +479,112 @@ export class DatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return comm;
+  }
+
+  // Pre-registration check
+  async checkPreRegistration(email: string, firstName?: string, lastName?: string): Promise<Employee | undefined> {
+    const result = await db.select().from(employees).where(eq(employees.email, email));
+    return result[0];
+  }
+
+  // Partners operations
+  async getPartners(): Promise<Partner[]> {
+    return await db.select().from(partners).orderBy(partners.name);
+  }
+
+  async createPartner(partner: InsertPartner): Promise<Partner> {
+    const [newPartner] = await db.insert(partners).values(partner).returning();
+    return newPartner;
+  }
+
+  async updatePartner(id: string, partner: Partial<InsertPartner>): Promise<Partner | undefined> {
+    const [updated] = await db.update(partners).set(partner).where(eq(partners.id, id)).returning();
+    return updated;
+  }
+
+  // Project Types operations
+  async getProjectTypes(): Promise<ProjectType[]> {
+    return await db.select().from(projectTypes);
+  }
+
+  // Salary Grids operations
+  async getSalaryGrids(): Promise<SalaryGrid[]> {
+    return await db.select().from(salaryGrids);
+  }
+
+  async createSalaryGrid(data: any): Promise<SalaryGrid> {
+    const [newGrid] = await db.insert(salaryGrids).values(data).returning();
+    return newGrid;
+  }
+
+  // Allowances operations
+  async getAllowances(): Promise<Allowance[]> {
+    return await db.select().from(allowances);
+  }
+
+  async createAllowance(data: any): Promise<Allowance> {
+    const [newAllowance] = await db.insert(allowances).values(data).returning();
+    return newAllowance;
+  }
+
+  // Bonuses operations
+  async getBonuses(): Promise<Bonus[]> {
+    return await db.select().from(bonuses);
+  }
+
+  async createBonus(data: any): Promise<Bonus> {
+    const [newBonus] = await db.insert(bonuses).values(data).returning();
+    return newBonus;
+  }
+
+  // Travel Expenses operations
+  async getTravelExpenses(): Promise<TravelExpense[]> {
+    return await db.select().from(travelExpenses);
+  }
+
+  async createTravelExpense(data: any): Promise<TravelExpense> {
+    const [newExpense] = await db.insert(travelExpenses).values(data).returning();
+    return newExpense;
+  }
+
+  // Social Benefits operations
+  async getSocialBenefits(): Promise<SocialBenefit[]> {
+    return await db.select().from(socialBenefits);
+  }
+
+  // Employee Donations operations
+  async getEmployeeDonations(): Promise<EmployeeDonation[]> {
+    return await db.select().from(employeeDonations);
+  }
+
+  async createEmployeeDonation(data: any): Promise<EmployeeDonation> {
+    const [newDonation] = await db.insert(employeeDonations).values(data).returning();
+    return newDonation;
+  }
+
+  // Employee Loans operations
+  async getEmployeeLoans(): Promise<EmployeeLoan[]> {
+    return await db.select().from(employeeLoans);
+  }
+
+  async createEmployeeLoan(data: any): Promise<EmployeeLoan> {
+    const [newLoan] = await db.insert(employeeLoans).values(data).returning();
+    return newLoan;
+  }
+
+  async updateEmployeeLoan(id: string, loan: Partial<any>): Promise<EmployeeLoan | undefined> {
+    const [updated] = await db.update(employeeLoans).set({...loan, updatedAt: new Date()}).where(eq(employeeLoans.id, id)).returning();
+    return updated;
+  }
+
+  // Service Customizations operations
+  async getServiceCustomizations(poleServiceId: string): Promise<ServiceCustomization[]> {
+    return await db.select().from(serviceCustomizations).where(eq(serviceCustomizations.poleServiceId, poleServiceId));
+  }
+
+  async createServiceCustomization(data: any): Promise<ServiceCustomization> {
+    const [newCustomization] = await db.insert(serviceCustomizations).values(data).returning();
+    return newCustomization;
   }
 
   // Dashboard stats

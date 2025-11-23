@@ -626,6 +626,216 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ PARTNERS ROUTES ============
+  app.get('/api/partners', isAuthenticated, async (req, res) => {
+    try {
+      const partners = await storage.getPartners();
+      res.json(partners);
+    } catch (error) {
+      console.error("Error fetching partners:", error);
+      res.status(500).json({ message: "Failed to fetch partners" });
+    }
+  });
+
+  app.post('/api/partners', isAuthenticated, async (req, res) => {
+    try {
+      const partner = await storage.createPartner(req.body);
+      res.status(201).json(partner);
+    } catch (error) {
+      console.error("Error creating partner:", error);
+      res.status(500).json({ message: "Failed to create partner" });
+    }
+  });
+
+  app.patch('/api/partners/:id', isAuthenticated, async (req, res) => {
+    try {
+      const partner = await storage.updatePartner(req.params.id, req.body);
+      if (!partner) return res.status(404).json({ message: "Partner not found" });
+      res.json(partner);
+    } catch (error) {
+      console.error("Error updating partner:", error);
+      res.status(500).json({ message: "Failed to update partner" });
+    }
+  });
+
+  // ============ PROJECT TYPES ROUTES ============
+  app.get('/api/project-types', isAuthenticated, async (req, res) => {
+    try {
+      const types = await storage.getProjectTypes();
+      res.json(types);
+    } catch (error) {
+      console.error("Error fetching project types:", error);
+      res.status(500).json({ message: "Failed to fetch project types" });
+    }
+  });
+
+  // ============ SALARY MANAGEMENT ROUTES ============
+  app.get('/api/salary-grids', isAuthenticated, async (req, res) => {
+    try {
+      const grids = await storage.getSalaryGrids();
+      res.json(grids);
+    } catch (error) {
+      console.error("Error fetching salary grids:", error);
+      res.status(500).json({ message: "Failed to fetch salary grids" });
+    }
+  });
+
+  app.post('/api/salary-grids', isAuthenticated, async (req, res) => {
+    try {
+      const grid = await storage.createSalaryGrid(req.body);
+      res.status(201).json(grid);
+    } catch (error) {
+      console.error("Error creating salary grid:", error);
+      res.status(500).json({ message: "Failed to create salary grid" });
+    }
+  });
+
+  app.get('/api/allowances', isAuthenticated, async (req, res) => {
+    try {
+      const allowances = await storage.getAllowances();
+      res.json(allowances);
+    } catch (error) {
+      console.error("Error fetching allowances:", error);
+      res.status(500).json({ message: "Failed to fetch allowances" });
+    }
+  });
+
+  app.post('/api/allowances', isAuthenticated, async (req, res) => {
+    try {
+      const allowance = await storage.createAllowance(req.body);
+      res.status(201).json(allowance);
+    } catch (error) {
+      console.error("Error creating allowance:", error);
+      res.status(500).json({ message: "Failed to create allowance" });
+    }
+  });
+
+  // ============ BONUSES & TRAVEL EXPENSES ROUTES ============
+  app.get('/api/bonuses', isAuthenticated, async (req, res) => {
+    try {
+      const bonuses = await storage.getBonuses();
+      res.json(bonuses);
+    } catch (error) {
+      console.error("Error fetching bonuses:", error);
+      res.status(500).json({ message: "Failed to fetch bonuses" });
+    }
+  });
+
+  app.post('/api/bonuses', isAuthenticated, async (req, res) => {
+    try {
+      const bonus = await storage.createBonus(req.body);
+      res.status(201).json(bonus);
+    } catch (error) {
+      console.error("Error creating bonus:", error);
+      res.status(500).json({ message: "Failed to create bonus" });
+    }
+  });
+
+  app.get('/api/travel-expenses', isAuthenticated, async (req, res) => {
+    try {
+      const expenses = await storage.getTravelExpenses();
+      res.json(expenses);
+    } catch (error) {
+      console.error("Error fetching travel expenses:", error);
+      res.status(500).json({ message: "Failed to fetch travel expenses" });
+    }
+  });
+
+  app.post('/api/travel-expenses', isAuthenticated, async (req, res) => {
+    try {
+      const expense = await storage.createTravelExpense(req.body);
+      res.status(201).json(expense);
+    } catch (error) {
+      console.error("Error creating travel expense:", error);
+      res.status(500).json({ message: "Failed to create travel expense" });
+    }
+  });
+
+  // ============ SOCIAL BENEFITS ROUTES ============
+  app.get('/api/social-benefits', isAuthenticated, async (req, res) => {
+    try {
+      const benefits = await storage.getSocialBenefits();
+      res.json(benefits);
+    } catch (error) {
+      console.error("Error fetching social benefits:", error);
+      res.status(500).json({ message: "Failed to fetch social benefits" });
+    }
+  });
+
+  // ============ EMPLOYEE DONATIONS ROUTES ============
+  app.get('/api/employee-donations', isAuthenticated, async (req, res) => {
+    try {
+      const donations = await storage.getEmployeeDonations();
+      res.json(donations);
+    } catch (error) {
+      console.error("Error fetching donations:", error);
+      res.status(500).json({ message: "Failed to fetch donations" });
+    }
+  });
+
+  app.post('/api/employee-donations', isAuthenticated, async (req, res) => {
+    try {
+      const donation = await storage.createEmployeeDonation(req.body);
+      res.status(201).json(donation);
+    } catch (error) {
+      console.error("Error creating donation:", error);
+      res.status(500).json({ message: "Failed to create donation" });
+    }
+  });
+
+  // ============ EMPLOYEE LOANS ROUTES ============
+  app.get('/api/employee-loans', isAuthenticated, async (req, res) => {
+    try {
+      const loans = await storage.getEmployeeLoans();
+      res.json(loans);
+    } catch (error) {
+      console.error("Error fetching loans:", error);
+      res.status(500).json({ message: "Failed to fetch loans" });
+    }
+  });
+
+  app.post('/api/employee-loans', isAuthenticated, async (req, res) => {
+    try {
+      const loan = await storage.createEmployeeLoan(req.body);
+      res.status(201).json(loan);
+    } catch (error) {
+      console.error("Error creating loan:", error);
+      res.status(500).json({ message: "Failed to create loan" });
+    }
+  });
+
+  app.patch('/api/employee-loans/:id', isAuthenticated, async (req, res) => {
+    try {
+      const loan = await storage.updateEmployeeLoan(req.params.id, req.body);
+      if (!loan) return res.status(404).json({ message: "Loan not found" });
+      res.json(loan);
+    } catch (error) {
+      console.error("Error updating loan:", error);
+      res.status(500).json({ message: "Failed to update loan" });
+    }
+  });
+
+  // ============ SERVICE CUSTOMIZATIONS ROUTES ============
+  app.get('/api/service-customizations/:poleServiceId', isAuthenticated, async (req, res) => {
+    try {
+      const customizations = await storage.getServiceCustomizations(req.params.poleServiceId);
+      res.json(customizations);
+    } catch (error) {
+      console.error("Error fetching customizations:", error);
+      res.status(500).json({ message: "Failed to fetch customizations" });
+    }
+  });
+
+  app.post('/api/service-customizations', isAuthenticated, async (req, res) => {
+    try {
+      const customization = await storage.createServiceCustomization(req.body);
+      res.status(201).json(customization);
+    } catch (error) {
+      console.error("Error creating customization:", error);
+      res.status(500).json({ message: "Failed to create customization" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

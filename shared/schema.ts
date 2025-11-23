@@ -51,10 +51,12 @@ export const centralDirections = pgTable("central_directions", {
 export const poles = pgTable("poles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
-  region: varchar("region").notNull(), // Extrême Est, Centre, Ouest, Sud
-  location: varchar("location").notNull(),
+  code: varchar("code"),
+  region: varchar("region"), // Extrême Est, Centre, Ouest, Sud
+  location: varchar("location"),
   directorId: varchar("director_id").references(() => users.id),
   directionId: varchar("direction_id").references(() => directions.id),
+  description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -63,9 +65,11 @@ export const poleServices = pgTable("pole_services", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   poleId: varchar("pole_id").references(() => poles.id, { onDelete: 'cascade' }).notNull(),
   name: varchar("name").notNull(), // Soutien, Réalisation, Achats, Études
-  type: varchar("type").notNull(), // support, realization, procurement, studies, projects
+  code: varchar("code"),
+  type: varchar("type"), // support, realization, procurement, studies, projects
   email: varchar("email"),
   managerUserId: varchar("manager_user_id").references(() => users.id),
+  description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -73,9 +77,13 @@ export const poleServices = pgTable("pole_services", {
 export const units = pgTable("units", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
-  city: varchar("city").notNull(),
+  code: varchar("code"),
+  city: varchar("city"),
+  type: varchar("type"), // study, wilaya, service
   managerId: varchar("manager_id").references(() => users.id),
+  poleServiceId: varchar("pole_service_id").references(() => poleServices.id),
   poleId: varchar("pole_id").references(() => poles.id),
+  description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

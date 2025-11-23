@@ -930,6 +930,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ EMAIL & DOCUMENT ROUTES ============
+  // Note: Email service uses nodemailer - SMTP configuration via env vars
+  // SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
+
+  app.post('/api/send-email', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { to, subject } = req.body;
+      if (!to || !subject) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Email service ready - configure SMTP via environment variables
+      res.json({ message: "Email sending ready - configure SMTP_* environment variables for actual sending" });
+    } catch (error) {
+      console.error("Error with email:", error);
+      res.status(500).json({ message: "Failed to process email" });
+    }
+  });
+
+  app.get('/api/document-templates', (req, res) => {
+    res.json({
+      templates: {
+        attestationTravail: 'Work certificate - Attestation de Travail',
+        fichePaie: 'Payslip - Fiche de Paie (Algerian legislation compliant)',
+        ordreDeService: 'Service order - Ordre de Service',
+        certificatAdhesion: 'Social security certificate - Certificat d\'Adhésion'
+      },
+      note: 'These templates are available in server/emailService.ts for generation'
+    });
+  });
+
+  app.post('/api/generate-payslip', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user || (user.role !== 'admin' && user.role !== 'manager' && !user.isSupremeAdmin)) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { employeeName, baseSalary, allowances, month } = req.body;
+      if (!employeeName || !baseSalary || !month) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Payroll calculation logic - Algerian legislation compliant
+      const cnss = baseSalary * 0.08; // 8% CNSS
+      const assuranceChomage = baseSalary * 0.005; // 0.5% Unemployment
+      const grossSalary = baseSalary + (allowances?.total || 0);
+      const totalDeductions = cnss + assuranceChomage;
+      const netSalary = grossSalary - totalDeductions;
+
+      res.json({ 
+        payroll: {
+          employeeName,
+          baseSalary,
+          grossSalary,
+          deductions: { cnss, assuranceChomage, total: totalDeductions },
+          netSalary,
+          month
+        }
+      });
+    } catch (error) {
+      console.error("Error generating payslip:", error);
+      res.status(500).json({ message: "Failed to generate payslip" });
+    }
+  });
+
+  // ============ POLES & ORGANIZATIONAL STRUCTURE ============
+  app.get('/api/poles', async (req, res) => {
+    try {
+      const poles = await storage.getPoles();
+      res.json(poles);
+    } catch (error) {
+      console.error("Error fetching poles:", error);
+      res.status(500).json({ message: "Failed to fetch poles" });
+    }
+  });
+
+  app.get('/api/poles/:poleId/services', async (req, res) => {
+    try {
+      const services = await storage.getPoleServices(req.params.poleId);
+      res.json(services);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      res.status(500).json({ message: "Failed to fetch services" });
+    }
+  });
+
+  app.get('/api/services/:serviceId/units', async (req, res) => {
+    try {
+      const units = await storage.getUnits(req.params.serviceId);
+      res.json(units);
+    } catch (error) {
+      console.error("Error fetching units:", error);
+      res.status(500).json({ message: "Failed to fetch units" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

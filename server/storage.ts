@@ -381,15 +381,39 @@ export class DatabaseStorage implements IStorage {
 
   // Organizational operations
   async getDirections(): Promise<any[]> {
-    return await db.select().from(directions);
+    return await db.select().from(directions).orderBy(directions.name);
   }
 
   async getPoles(): Promise<any[]> {
-    return await db.select().from(poles);
+    return await db.select().from(poles).orderBy(poles.region);
   }
 
   async getUnits(): Promise<any[]> {
-    return await db.select().from(units);
+    return await db.select().from(units).orderBy(units.city);
+  }
+
+  async createDirection(data: any): Promise<any> {
+    const [direction] = await db
+      .insert(directions)
+      .values(data)
+      .returning();
+    return direction;
+  }
+
+  async createPole(data: any): Promise<any> {
+    const [pole] = await db
+      .insert(poles)
+      .values(data)
+      .returning();
+    return pole;
+  }
+
+  async createUnit(data: any): Promise<any> {
+    const [unit] = await db
+      .insert(units)
+      .values(data)
+      .returning();
+    return unit;
   }
 
   // Dashboard stats

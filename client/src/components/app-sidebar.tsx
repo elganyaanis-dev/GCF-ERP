@@ -88,6 +88,11 @@ export function AppSidebar() {
       icon: MessageSquare,
     },
     {
+      title: "Organisation",
+      url: "/organization",
+      icon: Building2,
+    },
+    {
       title: "Paramètres",
       url: "/settings",
       icon: Settings,

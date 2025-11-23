@@ -483,6 +483,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ ORGANIZATION ROUTES ============
+  app.get('/api/organization/directions', isAuthenticated, async (req, res) => {
+    try {
+      const dirs = await storage.getDirections();
+      res.json(dirs);
+    } catch (error) {
+      console.error("Error fetching directions:", error);
+      res.status(500).json({ message: "Failed to fetch directions" });
+    }
+  });
+
+  app.post('/api/organization/directions', isAuthenticated, async (req, res) => {
+    try {
+      const direction = await storage.createDirection(req.body);
+      res.status(201).json(direction);
+    } catch (error) {
+      console.error("Error creating direction:", error);
+      res.status(500).json({ message: "Failed to create direction" });
+    }
+  });
+
+  app.get('/api/organization/poles', isAuthenticated, async (req, res) => {
+    try {
+      const poles = await storage.getPoles();
+      res.json(poles);
+    } catch (error) {
+      console.error("Error fetching poles:", error);
+      res.status(500).json({ message: "Failed to fetch poles" });
+    }
+  });
+
+  app.post('/api/organization/poles', isAuthenticated, async (req, res) => {
+    try {
+      const pole = await storage.createPole(req.body);
+      res.status(201).json(pole);
+    } catch (error) {
+      console.error("Error creating pole:", error);
+      res.status(500).json({ message: "Failed to create pole" });
+    }
+  });
+
+  app.get('/api/organization/units', isAuthenticated, async (req, res) => {
+    try {
+      const units = await storage.getUnits();
+      res.json(units);
+    } catch (error) {
+      console.error("Error fetching units:", error);
+      res.status(500).json({ message: "Failed to fetch units" });
+    }
+  });
+
+  app.post('/api/organization/units', isAuthenticated, async (req, res) => {
+    try {
+      const unit = await storage.createUnit(req.body);
+      res.status(201).json(unit);
+    } catch (error) {
+      console.error("Error creating unit:", error);
+      res.status(500).json({ message: "Failed to create unit" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

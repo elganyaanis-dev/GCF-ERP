@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ERPLayout } from "@/components/erp-layout";
 
 export default function ERPCommunications() {
   const [showForm, setShowForm] = useState(false);
@@ -16,7 +17,14 @@ export default function ERPCommunications() {
   const [type, setType] = useState("feedback");
   const { toast } = useToast();
 
-  const { data: communications } = useQuery({
+  const menuItems = [
+    { label: "Tableau de bord", path: "/dashboard" },
+    { label: "Employés", path: "/employees" },
+    { label: "Projets", path: "/projects" },
+    { label: "Documents", path: "/documents" },
+  ];
+
+  const { data: communications, isLoading } = useQuery({
     queryKey: ["/api/erp-communications"],
     queryFn: async () => {
       try {
@@ -53,8 +61,13 @@ export default function ERPCommunications() {
     },
   });
 
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-screen">Chargement...</div>;
+  }
+
   return (
-    <div className="space-y-6 p-6">
+    <ERPLayout menuItems={menuItems} title="Communications ERP">
+      <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
@@ -186,6 +199,7 @@ export default function ERPCommunications() {
           ))
         )}
       </div>
-    </div>
+      </div>
+    </ERPLayout>
   );
 }

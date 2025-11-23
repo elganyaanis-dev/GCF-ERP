@@ -18,6 +18,7 @@ import ERPPayroll from "@/pages/erp-payroll";
 import ERPOrganization from "@/pages/erp-organization";
 import ERPSettings from "@/pages/erp-settings";
 import ERPTenders from "@/pages/erp-tenders";
+import ERPCommunications from "@/pages/erp-communications";
 import AdminConsole from "@/pages/admin-console";
 import NotFound from "@/pages/not-found";
 
@@ -33,7 +34,7 @@ function Router() {
     if (selectedERP && !location.includes("/dashboard") && !location.includes("/employees") && 
         !location.includes("/projects") && !location.includes("/documents") && 
         !location.includes("/payroll") && !location.includes("/organization") && 
-        !location.includes("/tenders") && !location.includes("/settings") && !location.includes("/admin")) {
+        !location.includes("/tenders") && !location.includes("/settings") && !location.includes("/communications") && !location.includes("/admin")) {
       navigate("/dashboard");
     }
   }, [selectedERP, navigate, location]);
@@ -72,6 +73,7 @@ function Router() {
       <Route path="/organization" component={ERPOrganization} />
       <Route path="/tenders" component={ERPTenders} />
       <Route path="/settings" component={ERPSettings} />
+      <Route path="/communications" component={ERPCommunications} />
       <Route path="/admin" component={AdminConsole} />
       <Route component={NotFound} />
     </Switch>

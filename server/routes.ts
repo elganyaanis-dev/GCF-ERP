@@ -494,7 +494,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/organization/directions', isAuthenticated, async (req, res) => {
+  // Middleware to check admin-only access for structure modifications
+  const requireAdmin = (req: any, res: any, next: any) => {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ message: "Accès refusé: seuls les admins peuvent modifier la structure ERP" });
+    }
+    next();
+  };
+
+  app.post('/api/organization/directions', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const direction = await storage.createDirection(req.body);
       res.status(201).json(direction);
@@ -514,7 +522,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/organization/poles', isAuthenticated, async (req, res) => {
+  app.post('/api/organization/poles', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const pole = await storage.createPole(req.body);
       res.status(201).json(pole);
@@ -534,7 +542,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/organization/units', isAuthenticated, async (req, res) => {
+  app.post('/api/organization/units', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const unit = await storage.createUnit(req.body);
       res.status(201).json(unit);
@@ -555,7 +563,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/organization/central-directions', isAuthenticated, async (req, res) => {
+  app.post('/api/organization/central-directions', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const dir = await storage.createCentralDirection(req.body);
       res.status(201).json(dir);
@@ -576,7 +584,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/organization/pole-services', isAuthenticated, async (req, res) => {
+  app.post('/api/organization/pole-services', isAuthenticated, requireAdmin, async (req, res) => {
     try {
       const service = await storage.createPoleService(req.body);
       res.status(201).json(service);

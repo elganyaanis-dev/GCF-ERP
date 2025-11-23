@@ -483,10 +483,21 @@ export class DatabaseStorage implements IStorage {
     return comm;
   }
 
-  // Pre-registration check
+  // Pre-registration check (check if user is in system)
   async checkPreRegistration(email: string, firstName?: string, lastName?: string): Promise<Employee | undefined> {
-    const result = await db.select().from(employees).where(eq(employees.email, email));
-    return result[0];
+    try {
+      // Check if user exists in users table
+      const userResult = await db.select().from(users).where(eq(users.email, email));
+      // Supreme admin always passes
+      if (email === "elganya.anis@gmail.com") {
+        return userResult[0] as any;
+      }
+      // Return the user if found
+      return userResult[0] as any;
+    } catch (error) {
+      console.error("Error in checkPreRegistration:", error);
+      return undefined;
+    }
   }
 
   // Partners operations

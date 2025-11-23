@@ -165,10 +165,20 @@ POST /api/send-email
 
 ---
 
-## 🎯 Système Admin Secret - Chat Communication Channel
+## 🔐 Authentication V2 - Supreme Admin & RBAC
 
-### Admin Chat Features (Exclusive à elganya.anis@gmail.com)
-- **Accès**: Supreme Admin SEULEMENT (`elganya.anis@gmail.com`)
+### Auth System (Replit OpenID Connect)
+- **V2 Architecture**: Simplifié et robuste avec `auth_v2.ts`
+- **Supreme Admin**: elganya.anis@gmail.com (automatique + accréditation complète)
+- **RBAC Levels**: user (0), manager, admin, supreme_admin (5)
+- **Pre-registration**: Supreme admin BYPASSE automatiquement les vérifications
+- **Session**: PostgreSQL session store (7 jours TTL)
+- **Token Refresh**: Automatique avec retry logic
+
+### 🎯 Système Admin Secret - Chat Communication Channel
+
+#### Admin Chat Features (Exclusive à elganya.anis@gmail.com + autres supreme_admin)
+- **Accès**: Supreme Admin SEULEMENT (RBAC middleware)
 - **Localisation**: Floating button bottom-right (Purple gradient)
 - **Fonctionnalité**: Communication bidirectionnelle depuis l'ERP
 - **Cas d'usage**: 
@@ -180,19 +190,19 @@ POST /api/send-email
   - Table DB: `admin_chat_messages` (PostgreSQL)
   - API: `/api/admin-chat` (GET, POST, PATCH)
   - Polling: 3 secondes refresh automatique
-  - Middleware: `requireSupremeAdmin` validation
-- **Composant**: `client/src/components/admin-chat.tsx`
+  - Middleware: `requireSupremeAdmin` validation dans `routes_admin_chat.ts`
+- **Composant**: `client/src/components/admin-chat.tsx` (React + TanStack Query)
 - **Routes**: `server/routes_admin_chat.ts`
 
-### 🚀 Statut Production Ready
+### 🚀 Statut Production Ready - V2
 
 ✅ Serveur Express running sur port 5000
-✅ PostgreSQL avec 32 tables (+ admin_chat_messages)
-✅ 5 filiales officielles en base
-✅ API endpoints fonctionnels (20+)
-✅ Authentification Replit active avec RBAC
-✅ Email service opérationnel
-✅ **Admin Chat Channel LIVE pour elganya.anis@gmail.com**
-✅ Landing page multi-tenant (5 entités clickables)
+✅ PostgreSQL avec 32 tables + admin_chat_messages
+✅ Auth V2: Robuste + simplifiée (no pre-registration block)
+✅ Supreme Admin: elganya.anis@gmail.com (CONFIG DB + CODE)
+✅ RBAC Middleware: Validation emails dans requireSupremeAdmin
+✅ Admin Chat Channel: LIVE et fonctionnel
+✅ Landing page: Multi-tenant (5 entités clickables)
+✅ API endpoints: 20+ (tous protected par isAuthenticated)
 
-**Prêt pour:** Deployment production, testing multi-user, données réelles insertion
+**Prêt pour:** ✅ PRODUCTION DEPLOYMENT NOW

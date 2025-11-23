@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./auth_v2";
 import { setupAdminChat } from "./routes_admin_chat";
 import { insertEmployeeSchema, insertProjectSchema, insertDocumentSchema, insertLeaveSchema, insertPayrollSchema, insertFormationSchema, insertNotificationSchema, insertConversationSchema, insertMessageSchema, insertMissionOrderSchema, insertTravelSchema } from "@shared/schema";
 import { z } from "zod";

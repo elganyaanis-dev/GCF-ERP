@@ -106,10 +106,10 @@ export default function SubsidiarySelector() {
 
   const handleSelectSubsidiary = (subsidiaryId: string) => {
     setSelectedSubsidiary(subsidiaryId);
-    // Store in session/localStorage and navigate to dashboard
+    // Store in sessionStorage and navigate to dashboard
     sessionStorage.setItem("selected_subsidiary", subsidiaryId);
     setTimeout(() => {
-      navigate("/");
+      navigate("/dashboard");
     }, 300);
   };
 

@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -33,7 +33,10 @@ import { AdminChat } from "@/components/admin-chat";
 
 function AuthRouter() {
   const { isAuthenticated, isLoading, user } = useAuth();
-  const [subsidiaryId, setSubsidiaryId] = useState<string>("gcf");
+  const [location] = useLocation();
+  const [subsidiaryId, setSubsidiaryId] = useState<string>(() => {
+    return sessionStorage.getItem("selected_subsidiary") || "gcf";
+  });
 
   useEffect(() => {
     if (user && (user as any)?.subsidiary_id) {
@@ -53,6 +56,13 @@ function AuthRouter() {
     return <Landing />;
   }
 
+  const hasSelectedSubsidiary = sessionStorage.getItem("selected_subsidiary");
+  
+  // Show subsidiary selector on / only if not selected yet
+  if ((location === "/" || location === "") && !hasSelectedSubsidiary) {
+    return <SubsidiarySelector />;
+  }
+
   // Custom sidebar width for ERP application
   const style = {
     "--sidebar-width": "20rem",
@@ -68,7 +78,6 @@ function AuthRouter() {
             <Header />
             <main className="flex-1 overflow-auto">
               <Switch>
-                <Route path="/" component={SubsidiarySelector} />
                 <Route path="/dashboard" component={Dashboard} />
                 <Route path="/subsidiaries" component={Subsidiaries} />
                 <Route path="/employees" component={Employees} />

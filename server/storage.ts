@@ -47,7 +47,6 @@ import {
   type InsertFormation,
   type Notification,
   type InsertNotification,
-  type AuditLog,
   type Message,
   type InsertMessage,
   type Conversation,
@@ -62,11 +61,6 @@ import {
   type SalaryGrid,
   type Allowance,
   type Bonus,
-  type TravelExpense,
-  type SocialBenefit,
-  type EmployeeDonation,
-  type EmployeeLoan,
-  type ServiceCustomization,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -737,16 +731,18 @@ export class DatabaseStorage implements IStorage {
     try {
       let employeesQuery = db.select().from(employees);
       let projectsQuery = db.select().from(projects);
+      let documentsQuery = db.select().from(documents);
+      let leavesQuery = db.select().from(leaves);
       
       if (subsidiaryId) {
         employeesQuery = employeesQuery.where(eq(employees.subsidiaryId, subsidiaryId));
         projectsQuery = projectsQuery.where(eq(projects.subsidiaryId, subsidiaryId));
       }
       
-      const activeEmployees = await employeesQuery.where(eq(employees.status, 'active'));
-      const activeProjects = await projectsQuery.where(eq(projects.status, 'in_progress'));
-      const totalDocuments = await db.select().from(documents);
-      const pendingLeaves = await db.select().from(leaves).where(eq(leaves.status, 'pending'));
+      const activeEmployees = await db.select().from(employees).where(eq(employees.status, 'active'));
+      const activeProjects = await db.select().from(projects).where(eq(projects.status, 'in_progress'));
+      const totalDocuments = await documentsQuery;
+      const pendingLeaves = await leavesQuery.where(eq(leaves.status, 'pending'));
 
       const recentProjects = await projectsQuery
         .orderBy(desc(projects.createdAt))
@@ -761,7 +757,7 @@ export class DatabaseStorage implements IStorage {
       };
     } catch (error) {
       console.error("Error in getDashboardStats:", error);
-      return { totalEmployees: 0, activeProjects: 0, totalDocuments: 0, pendingLeaves: 0 };
+      return { totalEmployees: 0, activeProjects: 0, totalDocuments: 0, pendingLeaves: 0, recentProjects: [] };
     }
   }
 }

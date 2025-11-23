@@ -28,11 +28,12 @@ export function AdminChat() {
   // Check if user is supreme admin BEFORE all hooks
   const isSupremeAdmin = typeof user === "object" && user ? (user as any)?.email === "elganya.anis@gmail.com" : false;
 
-  // Fetch admin chat messages
+  // Fetch admin chat messages - only for supreme admin
   const { data: messages = [], isLoading } = useQuery({
     queryKey: ["/api/admin-chat"],
-    refetchInterval: isSupremeAdmin ? 3000 : undefined, // Only poll if supreme admin
-    enabled: isSupremeAdmin, // Only enable query if supreme admin
+    refetchInterval: isSupremeAdmin ? 3000 : false,
+    enabled: isSupremeAdmin,
+    staleTime: 2000,
   });
 
   // Mutation to send message

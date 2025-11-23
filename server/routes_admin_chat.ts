@@ -1,5 +1,5 @@
 import type { Express, Request, Response, NextFunction } from "express";
-import { isAuthenticated } from "./replitAuth";
+import { isAuthenticated } from "./auth_v2";
 import { db } from "./db";
 import { sql } from "drizzle-orm";
 

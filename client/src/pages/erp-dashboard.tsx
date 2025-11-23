@@ -3,6 +3,7 @@ import { ERPLayout } from "@/components/erp-layout";
 import { Card } from "@/components/ui/card";
 import { BarChart3, Users, FileText, DollarSign, TrendingUp, BookOpen, Briefcase, MapPin } from "lucide-react";
 import { useRole, canViewPayroll } from "@/hooks/useRole";
+import { StatCard } from "@/components/stat-card";
 
 export default function ERPDashboard() {
   const { role, accreditationLevel, poleServiceId, isLoading: roleLoading } = useRole();
@@ -43,45 +44,38 @@ export default function ERPDashboard() {
       <ERPLayout menuItems={menuItems} title="Mon Espace">
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="p-6 hover-elevate" data-testid="card-formations">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Formations Éligibles</p>
-                  <p className="text-3xl font-bold">{myFormations.length}</p>
-                </div>
-                <BookOpen className="h-5 w-5 text-blue-600" />
-              </div>
-            </Card>
+            <StatCard
+              label="Formations Éligibles"
+              value={myFormations.length}
+              icon={BookOpen}
+              color="bg-blue-600"
+              description="Recommandées"
+              data-testid="card-formations"
+            />
 
-            <Card className="p-6 hover-elevate" data-testid="card-orders">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Ordres de Mission</p>
-                  <p className="text-3xl font-bold">{myOrders.length}</p>
-                </div>
-                <Briefcase className="h-5 w-5 text-green-600" />
-              </div>
-            </Card>
+            <StatCard
+              label="Ordres de Mission"
+              value={myOrders.length}
+              icon={Briefcase}
+              color="bg-green-600"
+              description="En cours"
+            />
 
-            <Card className="p-6 hover-elevate" data-testid="card-travels">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Ordres de Déplacement</p>
-                  <p className="text-3xl font-bold">{myTravels.length}</p>
-                </div>
-                <MapPin className="h-5 w-5 text-orange-600" />
-              </div>
-            </Card>
+            <StatCard
+              label="Ordres de Déplacement"
+              value={myTravels.length}
+              icon={MapPin}
+              color="bg-orange-600"
+              description="Actifs"
+            />
 
-            <Card className="p-6 hover-elevate" data-testid="card-documents">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Mes Documents</p>
-                  <p className="text-3xl font-bold">{stats.totalDocuments || 0}</p>
-                </div>
-                <FileText className="h-5 w-5 text-purple-600" />
-              </div>
-            </Card>
+            <StatCard
+              label="Mes Documents"
+              value={stats.totalDocuments || 0}
+              icon={FileText}
+              color="bg-purple-600"
+              description="Archivés"
+            />
           </div>
 
           <Card className="p-6" data-testid="card-formations-list">

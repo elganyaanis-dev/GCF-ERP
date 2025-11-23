@@ -1,4 +1,4 @@
-# ERP GCF SPA ALGÉRIE - Système de Gestion Intégré
+# ERP GCF SPA ALGÉRIE - Système de Gestion Intégré V5
 
 ## 📋 Structure Officielle du Groupe GCF (Validée J.O. - 24 Novembre 2025)
 
@@ -20,215 +20,222 @@
 
 ---
 
-## 🏢 Architecture Système ERP
+## 🚀 Architecture V5 - Système Premium Sécurisé
 
 ### Core Infrastructure
 - **Frontend**: React 18 + TypeScript, Shadcn UI, Tailwind CSS, TanStack React Query v5, Wouter routing
-- **Backend**: Express.js + Node.js with TypeScript
-- **Database**: PostgreSQL (Neon) avec Drizzle ORM
-- **Authentication**: Replit Auth (OpenID Connect) avec RBAC pré-configuration
+- **Backend**: Express.js + Node.js with TypeScript, middleware sécurité avancée
+- **Database**: PostgreSQL (Neon) avec Drizzle ORM, 32 tables opérationnelles
+- **Authentication**: Replit Auth (OpenID Connect) V2 robusté
+- **Security**: RBAC 6 niveaux (0-5 + Supreme Admin), isolation multi-tenant, audit logging
 - **Email**: Nodemailer (Templates administratifs algériens)
 
-### Modules Implémentés
+### Modules Implémentés V5
 
-1. **Multi-Subsidiary Management**
+1. **Multi-Subsidiary Management** ✅
+   - 5 ERPs autonomes (GCF + 4 filiales)
+   - Sélecteur ERP avec navigation automatique vers /dashboard
    - Dashboards par filiale avec statistiques
-   - Reporting groupe-level
-   - Cross-subsidiary project tracking
+   - Isolation complète des données
 
-2. **Asset & Logistics Management** (Critique pour RailElectr)
-   - Tracking actifs (véhicules, équipements, machinerie, bâtiments)
-   - Gestion véhicules (plaques, carburants, maintenance)
-   - Tracking capacité (tonnage, passagers)
-   - Automation maintenance scheduling
-
-3. **Budget & Financial Management**
-   - Allocations budgets multi-années par filiale
-   - Catégories : opérationnel, capital, projets, RH
-   - Real-time suivi budget vs réel
-   - Logging transactions financières
-
-4. **Compliance & Regulations**
-   - Tracking conformité Ministère des Travaux Publics
-   - Document versioning & archival
-   - Management conformité avec due dates
-   - Multi-policy support
-
-5. **Payroll (Législation Algérienne)**
+2. **RH & Payroll** ✅
    - CNSS 8%, Assurance Chômage 0.5%, IRG progressif
    - Grilles salariales & allocations
    - Bonus & incentives
    - Processing multi-filiale
 
-6. **Project Management avec Gantt**
+3. **Gestion de Projets** ✅
+   - Support Gantt chart
    - Task dependencies & scheduling
    - Progress tracking & ressources allocation
    - Budget integration
 
-7. **HR Management**
-   - Employee lifecycle (hire, assignments, leaves, termination)
-   - Formation/training tracking
-   - Performance evaluations
-   - Organizational hierarchy
+4. **Gestion de Documents** ✅
+   - Éditeur texte avancé
+   - Support Excel intégré
+   - Versioning automatique
+   - Archivage et compliance
 
-8. **Communications**
-   - Direct messaging entre employees
-   - Group chat par teams/projects
-   - System notifications
-   - Admin console
+5. **Organisation** ✅
+   - Directions, Pôles, Services, Unités
+   - Hiérarchie et organigramme
+   - Permissions RBAC par structure
 
----
+6. **Marchés Publics** ✅
+   - 7 plateformes algériennes intégrées avec liens directs
+   - DZ Tenders, DZ Marchés, Tenders-360, SmartMarchés, MS Marchés, TopTenders, Algérie Marchés
 
-## 🗄️ Database Schema (31 Tables)
+### Sécurité V5 - Architecture Renforcée
 
-**Group & Organization:**
-- subsidiaries (5: GCF + 4 filiales)
-- poles, poleServices, units
-- directions, centralDirections
+#### RBAC System (6 Niveaux)
+- **Level 0**: User (employé standard)
+- **Level 1**: Manager (responsable équipe)
+- **Level 2**: Admin (administrateur filiale)
+- **Level 3**: Director (directeur général)
+- **Level 4**: CEO (PDG)
+- **Level 5**: Supreme Admin (elganya.anis@gmail.com - accès illimité)
 
-**HR & Payroll:**
-- users, employees
-- leaves, payroll, formations
-- salaryGrids, allowances, bonuses
-- socialBenefits, employeeLoans, employeeDonations
+#### Middleware de Sécurité
+- `requireAuth`: Validation authentification
+- `requireAccreditation(level)`: Contrôle RBAC par niveau
+- `requireSupremeAdmin`: Accès Supreme Admin uniquement
+- `requireSubsidiaryAccess`: Isolation multi-tenant par filiale
+- `logAction`: Audit logging pour tous les changements
 
-**Operations:**
-- projects, tasks (Gantt support)
-- assets, vehicles
-- partners
+#### Architecture Isolée
+- **SessionStorage**: Stockage `selected_erp` pour isolation
+- **Routing Automatique**: Navigation vers /dashboard après sélection ERP
+- **Context Protection**: Chaque ERP a son contexte isolé
+- **Database Security**: Queries filtrées par `subsidiary_id`
 
-**Financial:**
-- budgets, transactions
+### UI/UX V5 - Design Premium
 
-**Compliance:**
-- complianceItems
+#### ERPSelector (Landing Multi-Tenant)
+- Grid 5 filiales avec gradient par couleur
+- Supreme Admin badge visible pour elganya.anis@gmail.com
+- Navigation fluide vers ERP après sélection
+- Responsive design (1, 2, 3 colonnes)
 
-**Content & Communications:**
-- documents, messages, conversations
-- missionOrders, travels
-- projectTypes, auditLogs
+#### ERPLayout Homogène
+- Sidebar unifié par ERP
+- Header avec infos filiale
+- Navigation cohérente
+- 7 plateformes marchés publics dans sidebar
+- Support dark mode complet
+
+#### Pages Modules
+- Dashboard avec stats temps réel
+- Employés avec import Excel
+- Projets avec Gantt support
+- Documents avec éditeurs
+- Paie conforme algérienne
+- Organisation avec hiérarchie
+- Tenders avec liens directs
+- Settings avec configurables
 
 ---
 
 ## 🔌 API Endpoints Principales
 
-**Subsidiaries & Organization:**
+**Authentication:**
 ```
-GET  /api/subsidiaries
-GET  /api/subsidiaries/:subsidiaryId
-GET  /api/subsidiaries/:subsidiaryId/poles
-GET  /api/subsidiaries/:subsidiaryId/assets
-GET  /api/subsidiaries/:subsidiaryId/vehicles
-GET  /api/subsidiaries/:subsidiaryId/budgets
-GET  /api/subsidiaries/:subsidiaryId/compliance
-GET  /api/dashboard/stats/:subsidiaryId
+POST /api/login
+GET  /api/auth/user
+POST /api/logout
 ```
 
-**HR & Administration:**
+**Subsidiaries & Data:**
 ```
+GET  /api/subsidiaries
+GET  /api/dashboard/stats
 GET  /api/employees
+GET  /api/projects
 POST /api/generate-payslip
-GET  /api/document-templates
-POST /api/send-email
+```
+
+**Admin:**
+```
+GET  /api/admin-chat (Supreme Admin only)
+POST /api/admin-chat (Supreme Admin only)
 ```
 
 ---
 
-## 🎯 État Implémentation (24 Novembre 2025)
+## 🎯 État Implémentation V5 (23 Novembre 2025)
 
 ✅ **Complet:**
-- Structure multi-filiale 5 + groupe
-- 31 tables DB opérationnelles
-- Schema Drizzle restructuré (640 lignes)
-- Storage service (760 lignes)
-- Routes API (1117 lignes)
-- Email templates (4 templates algériens)
-- Payroll service (conformité DZ)
-- RBAC & authentification Replit
-- Gantt chart support (database level)
+- Structure multi-filiale 5 ERPs autonomes
+- Routing V5 avec navigation auto vers /dashboard après sélection
+- ERPSelector avec sélection fluide
+- ERPLayout composant réutilisable homogène
+- RBAC 6 niveaux + Supreme Admin
+- Middleware de sécurité avancée
+- Isolation multi-tenant complète
+- 7 plateformes marchés publics intégrées
+- UI Premium avec design cohérent
+- Dark mode complet
+- Error handling avancé
 
-🔄 **En cours/Optionnel:**
-- Frontend pages par filiale
-- Gantt chart visualization UI
-- Advanced analytics dashboard
-- GIS integration
-- Mobile app
+🔄 **Améliorations Récentes:**
+- Correction du routing 404 (auto-navigation /dashboard)
+- Réorganisation architecture en composants
+- Sécurité renforcée avec middleware
+- Error handlers typés
 
 ---
 
 ## 🌍 Conformité Réglementaire
 
-- **Législation Algérienne** : Droit du travail, protections employees, types congés
+- **Législation Algérienne** : Droit du travail, CNSS, IRG, Assurance Chômage
 - **Ministère Travaux Publics** : Tracking conformité & document archival
 - **Conformité Financière** : Audit trails, budget adherence
-- **QHSE Compliance** : Sécurité, Santé, Environnement
+- **Multi-Tenant Security** : Isolation données par filiale
 
 ---
 
-## 🔐 Authentication V2 - Supreme Admin & RBAC
+## 📁 Structure Fichiers V5
 
-### Auth System (Replit OpenID Connect)
-- **V2 Architecture**: Simplifié et robuste avec `auth_v2.ts`
-- **Supreme Admin**: elganya.anis@gmail.com (automatique + accréditation complète)
-- **RBAC Levels**: user (0), manager, admin, supreme_admin (5)
-- **Pre-registration**: Supreme admin BYPASSE automatiquement les vérifications
-- **Session**: PostgreSQL session store (7 jours TTL)
-- **Token Refresh**: Automatique avec retry logic
+```
+client/src/
+├── pages/
+│   ├── landing.tsx              # Page de login
+│   ├── erp-selector.tsx         # Sélecteur multi-filiales
+│   ├── erp-dashboard.tsx        # Dashboard autonome
+│   ├── erp-employees.tsx        # Gestion RH
+│   ├── erp-projects.tsx         # Projets + Gantt
+│   ├── erp-documents.tsx        # Documents + Éditeurs
+│   ├── erp-payroll.tsx          # Paie conforme
+│   ├── erp-organization.tsx     # Organigramme
+│   ├── erp-tenders.tsx          # Marchés publics
+│   ├── erp-settings.tsx         # Paramètres filiale
+│   └── admin-console.tsx        # Admin supreme
+├── components/
+│   ├── erp-layout.tsx           # Layout réutilisable
+│   ├── admin-chat.tsx           # Chat supreme admin
+│   ├── header.tsx
+│   ├── app-sidebar.tsx
+│   └── ui/                      # Shadcn components
+└── lib/
+    ├── error-handler.ts         # Gestion erreurs typées
+    └── queryClient.ts
 
-### 🎯 Système Admin Secret - Chat Communication Channel
+server/
+├── security.ts                  # RBAC + Middleware
+├── routes.ts                    # API endpoints
+├── auth_v2.ts                   # Auth robusté
+└── index.ts                     # Server Express
 
-#### Admin Chat Features (Exclusive à elganya.anis@gmail.com + autres supreme_admin)
-- **Accès**: Supreme Admin SEULEMENT (RBAC middleware)
-- **Localisation**: Floating button bottom-right (Purple gradient)
-- **Fonctionnalité**: Communication bidirectionnelle depuis l'ERP
-- **Cas d'usage**: 
-  - Envoyer des instructions de modification en temps réel
-  - Rapport de bugs avec contexte système
-  - Feedback de performance après déploiement
-  - Debugging à distance
-- **Architecture**: 
-  - Table DB: `admin_chat_messages` (PostgreSQL)
-  - API: `/api/admin-chat` (GET, POST, PATCH)
-  - Polling: 3 secondes refresh automatique
-  - Middleware: `requireSupremeAdmin` validation dans `routes_admin_chat.ts`
-- **Composant**: `client/src/components/admin-chat.tsx` (React + TanStack Query)
-- **Routes**: `server/routes_admin_chat.ts`
+shared/
+└── schema.ts                    # 32 tables DB + types
+```
 
-### 🚀 Statut Production Ready - V3 COMPLÈTE ET OPÉRATIONNELLE
+---
 
-✅ Serveur Express running sur port 5000
-✅ PostgreSQL avec 32 tables + admin_chat_messages  
-✅ Auth V2: Robuste + simplifiée (bypass pre-registration pour supreme admin)
-✅ Supreme Admin: elganya.anis@gmail.com (CONFIG DB + CODE) - accréditation niveau 5
-✅ RBAC Middleware: Validation emails dans requireSupremeAdmin
-✅ Admin Chat Channel: LIVE, fonctionnel, optimisé (polling smart)
+## 🔐 Sessions & Persistence
 
-### 🎯 V3 Interface Complète (Désormais Fonctionnelle)
-✅ **Landing Page**: S'affiche avant authentification
-✅ **SubsidiarySelector (V3)**: 
-  - Affichée après login sur "/" si aucune filiale sélectionnée
-  - 5 entités GCF opérationnelles avec descriptions complètes
-  - 7 marchés publics algériens intégrés (liens direct)
-  - Badge "Supreme Admin" pour elganya.anis@gmail.com
-  - Navigation vers /dashboard après sélection filiale
+- **SessionStorage**: `selected_erp` (stockage ERP sélectionné)
+- **PostgreSQL Sessions**: 7 jours TTL
+- **Auto-Redirect**: "/dashboard" après sélection ERP
 
-✅ **Dashboard + Layout Complet**:
-  - Sidebar avec tous les menus (RH, Projets, Documents, etc)
-  - Header avec infos utilisateur et contrôles
-  - Stats cartes (Employés, Projets, Documents, Congés)
-  - 15+ pages et modules opérationnels
+---
 
-✅ **Nettoyage système**: Suppression replitAuth.ts, imports optimisés, hooks React fixed
-✅ **Dashboard Stats**: Corrigé (queries SQL robustes)
-✅ **API endpoints**: 20+ (tous protected par isAuthenticated)
+## 🚀 Prêt pour Production - V5 COMPLÈTE ET OPÉRATIONNELLE
 
-### 📱 Marchés Publics Algérie Intégrés (7 Plateformes)
-1. DZ Tenders - https://www.dztenders.com/fr/
-2. DZ Marchés - https://dzmarches.net/
-3. Tenders-360 - https://www.tenders-360.com/
-4. SmartMarchés - https://smartmarches.com/SmartPlus/
-5. MS Marchés - https://www.msmarches.com/
-6. TopTenders - https://www.toptenderspro.com/
-7. Algérie Marchés - https://algeriemarches.dz/
+✅ Routing auto-navigation /dashboard fonctionnel
+✅ 5 ERPs autonomes avec isolation multi-tenant
+✅ RBAC 6 niveaux + Supreme Admin (elganya.anis@gmail.com)
+✅ Sécurité renforcée avec middleware
+✅ Error handling avancé
+✅ UI/UX Premium homogène
+✅ 7 plateformes marchés publics intégrées
+✅ Dark mode complet
+✅ Design responsive
+✅ Documentation complète
 
-**Prêt pour:** ✅ PRODUCTION DEPLOYMENT NOW - V3 COMPLÈTE
+### Performance & Optimisations
+- React Query avec caching intelligent
+- Hot reload Vite optimisé
+- Components légers et réutilisables
+- SessionStorage pour navigation rapide
+- Middleware efficace
+

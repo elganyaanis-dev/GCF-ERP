@@ -1,16 +1,11 @@
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Users, Settings, FileText, BarChart3, Globe, LogOut } from "lucide-react";
-import { useLocation } from "wouter";
-import { ERP_CONFIG, TENDER_PLATFORMS } from "@/App";
+import { BarChart3, Globe, FileText, Users, Settings, LogOut, Lock, Shield } from "lucide-react";
+import { ERPLayout } from "@/components/erp-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function ERPSettings() {
-  const [, navigate] = useLocation();
   const { logout } = useAuth();
-  const selectedERP = sessionStorage.getItem("selected_erp") || "gcf";
-  const erpConfig = ERP_CONFIG[selectedERP as keyof typeof ERP_CONFIG];
 
   const menuItems = [
     { label: "Tableau de bord", icon: BarChart3, path: "/dashboard" },
@@ -20,131 +15,111 @@ export default function ERPSettings() {
     { label: "Marchés Publics", icon: Globe, path: "/tenders" },
   ];
 
-  const style = {
-    "--sidebar-width": "16rem",
-    "--sidebar-width-icon": "3rem",
-  };
-
   const handleLogout = () => {
     sessionStorage.removeItem("selected_erp");
     logout();
   };
 
   return (
-    <SidebarProvider style={style as React.CSSProperties}>
-      <div className="flex h-screen w-full">
-        <Sidebar>
-          <SidebarContent>
-            <div className="p-4 mb-4">
-              <h2 className="text-lg font-bold">{erpConfig?.name}</h2>
-              <p className="text-xs text-muted-foreground">{erpConfig?.subtitle}</p>
-            </div>
-            <SidebarGroup>
-              <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {menuItems.map((item) => (
-                    <SidebarMenuItem key={item.path}>
-                      <SidebarMenuButton asChild>
-                        <button
-                          onClick={() => navigate(item.path)}
-                          className="flex items-center gap-2 w-full"
-                        >
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.label}</span>
-                        </button>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            <SidebarGroup className="mt-auto">
-              <SidebarGroupLabel>Marchés Publics</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <div className="space-y-2">
-                  {TENDER_PLATFORMS.map((platform) => (
-                    <a
-                      key={platform.url}
-                      href={platform.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-muted-foreground hover:text-foreground block truncate hover-elevate px-2 py-1 rounded"
-                    >
-                      {platform.name}
-                    </a>
-                  ))}
-                </div>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            <SidebarGroup className="mt-4">
-              <Button
-                onClick={handleLogout}
-                variant="destructive"
-                className="w-full"
-              >
-                <LogOut className="h-4 w-4 mr-2" /> Déconnexion
-              </Button>
-            </SidebarGroup>
-          </SidebarContent>
-        </Sidebar>
-
-        <div className="flex-1 overflow-auto">
-          <header className="flex items-center justify-between px-6 py-4 border-b bg-card">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger />
-              <h1 className="text-2xl font-bold">Paramètres</h1>
-            </div>
-          </header>
-
-          <main className="p-8 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Informations de la Filiale</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Nom</p>
-                    <p className="font-semibold">{erpConfig?.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Description</p>
-                    <p className="font-semibold">{erpConfig?.subtitle}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Paramétrages Spécifiques</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Paramètres au niveau de la filiale {erpConfig?.name}
+    <ERPLayout menuItems={menuItems} title="Paramètres & Configuration">
+      <div className="p-8 space-y-6">
+        {/* Information Card */}
+        <Card className="hover-elevate transition-all">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" /> Informations de la Filiale
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Identifiant</p>
+                <p className="font-semibold">
+                  {sessionStorage.getItem("selected_erp")?.toUpperCase() || "GCF"}
                 </p>
-                <div className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start">
-                    Grille Salariale
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    Organigramme
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    Politiques RH
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    Conformité
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </main>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Type d'accès</p>
+                <p className="font-semibold">Multi-Tenant Autonome</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Configuration Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="hover-elevate transition-all">
+            <CardHeader>
+              <CardTitle className="text-lg">Grille Salariale</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Configuration des grilles salariales et allocations
+              </p>
+              <Button variant="outline" className="w-full">
+                Configurer
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-elevate transition-all">
+            <CardHeader>
+              <CardTitle className="text-lg">Organigramme</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Structures et hiérarchies
+              </p>
+              <Button variant="outline" className="w-full">
+                Gérer
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-elevate transition-all">
+            <CardHeader>
+              <CardTitle className="text-lg">Conformité</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Paramètres légaux et réglementaires algériens
+              </p>
+              <Button variant="outline" className="w-full">
+                Configurer
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-elevate transition-all">
+            <CardHeader>
+              <CardTitle className="text-lg">Sécurité</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Contrôle d'accès et audit
+              </p>
+              <Button variant="outline" className="w-full flex items-center gap-2">
+                <Lock className="h-4 w-4" /> Paramètres RBAC
+              </Button>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Logout Section */}
+        <Card className="border-red-200 dark:border-red-900">
+          <CardHeader>
+            <CardTitle className="text-red-600 dark:text-red-400">Déconnexion</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Vous allez revenir au sélecteur de filiales
+            </p>
+            <Button onClick={handleLogout} variant="destructive" className="flex items-center gap-2">
+              <LogOut className="h-4 w-4" /> Déconnexion
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-    </SidebarProvider>
+    </ERPLayout>
   );
 }

@@ -1,19 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SidebarProvider, SidebarTrigger, Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { Users, FolderKanban, FileText, Calendar, Settings, BarChart3, Globe } from "lucide-react";
-import { useLocation } from "wouter";
-import { ERP_CONFIG, TENDER_PLATFORMS } from "@/App";
-import { useState } from "react";
+import { Users, FolderKanban, FileText, Calendar, BarChart3, Globe } from "lucide-react";
+import { ERPLayout } from "@/components/erp-layout";
 
 export default function ERPDashboard() {
-  const [, navigate] = useLocation();
-  const selectedERP = sessionStorage.getItem("selected_erp") || "gcf";
-  const erpConfig = ERP_CONFIG[selectedERP as keyof typeof ERP_CONFIG];
-  
   const { data: stats, isLoading } = useQuery({
-    queryKey: ["/api/dashboard/stats", selectedERP],
+    queryKey: ["/api/dashboard/stats"],
   });
 
   const menuItems = [
@@ -24,7 +17,6 @@ export default function ERPDashboard() {
     { label: "Paie", icon: Calendar, path: "/payroll" },
     { label: "Organisation", icon: Users, path: "/organization" },
     { label: "Marchés Publics", icon: Globe, path: "/tenders" },
-    { label: "Paramètres", icon: Settings, path: "/settings" },
   ];
 
   const statCards = [
@@ -32,159 +24,95 @@ export default function ERPDashboard() {
       title: "Employés actifs",
       value: stats?.totalEmployees || 0,
       icon: Users,
-      color: "text-blue-600",
+      color: "text-blue-600 dark:text-blue-400",
+      bgColor: "bg-blue-50 dark:bg-blue-950",
     },
     {
       title: "Projets en cours",
       value: stats?.activeProjects || 0,
       icon: FolderKanban,
-      color: "text-green-600",
+      color: "text-green-600 dark:text-green-400",
+      bgColor: "bg-green-50 dark:bg-green-950",
     },
     {
       title: "Documents",
       value: stats?.totalDocuments || 0,
       icon: FileText,
-      color: "text-purple-600",
+      color: "text-purple-600 dark:text-purple-400",
+      bgColor: "bg-purple-50 dark:bg-purple-950",
     },
     {
       title: "Congés en attente",
       value: stats?.pendingLeaves || 0,
       icon: Calendar,
-      color: "text-amber-600",
+      color: "text-amber-600 dark:text-amber-400",
+      bgColor: "bg-amber-50 dark:bg-amber-950",
     },
   ];
 
-  const style = {
-    "--sidebar-width": "16rem",
-    "--sidebar-width-icon": "3rem",
-  };
-
   if (isLoading) {
     return (
-      <div className="p-8 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <Skeleton className="h-4 w-24" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-8 w-16 mb-2" />
-              </CardContent>
-            </Card>
-          ))}
+      <ERPLayout menuItems={menuItems} title="Tableau de Bord">
+        <div className="p-8 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <Skeleton className="h-4 w-24" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-8 w-16 mb-2" />
+                  <Skeleton className="h-3 w-12" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
+      </ERPLayout>
     );
   }
 
   return (
-    <SidebarProvider style={style as React.CSSProperties}>
-      <div className="flex h-screen w-full">
-        {/* Sidebar */}
-        <Sidebar>
-          <SidebarContent>
-            <div className="p-4 mb-4">
-              <h2 className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
-                {erpConfig?.name}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {erpConfig?.subtitle}
-              </p>
-            </div>
-            <SidebarGroup>
-              <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {menuItems.map((item) => (
-                    <SidebarMenuItem key={item.path}>
-                      <SidebarMenuButton asChild>
-                        <button
-                          onClick={() => navigate(item.path)}
-                          className="flex items-center gap-2 w-full"
-                        >
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.label}</span>
-                        </button>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            {/* Tender Platforms */}
-            <SidebarGroup className="mt-auto">
-              <SidebarGroupLabel>Marchés Publics Algérie</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <div className="space-y-2">
-                  {TENDER_PLATFORMS.map((platform) => (
-                    <a
-                      key={platform.url}
-                      href={platform.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-muted-foreground hover:text-foreground block truncate hover-elevate px-2 py-1 rounded"
-                    >
-                      {platform.name}
-                    </a>
-                  ))}
+    <ERPLayout menuItems={menuItems} title="Tableau de Bord">
+      <div className="p-8 space-y-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {statCards.map((stat, index) => (
+            <Card key={index} className="hover-elevate transition-all" data-testid={`card-stat-${index}`}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 gap-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {stat.title}
+                </CardTitle>
+                <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
                 </div>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-        </Sidebar>
-
-        {/* Main Content */}
-        <div className="flex-1 overflow-auto">
-          <header className="flex items-center justify-between px-6 py-4 border-b bg-card">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger />
-              <div>
-                <h1 className="text-2xl font-bold">{erpConfig?.name}</h1>
-                <p className="text-sm text-muted-foreground">
-                  {erpConfig?.subtitle}
-                </p>
-              </div>
-            </div>
-          </header>
-
-          <main className="p-8 space-y-8">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {statCards.map((stat, index) => (
-                <Card key={index} className="hover-elevate transition-all">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                      {stat.title}
-                    </CardTitle>
-                    <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Données en temps réel
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Welcome Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Bienvenue</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
-                  Système ERP autonome pour {erpConfig?.name}. 
-                  Accédez aux modules via le menu latéral.
+                <div className="text-2xl font-bold" data-testid={`stat-value-${index}`}>
+                  {stat.value}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Données en temps réel
                 </p>
               </CardContent>
             </Card>
-          </main>
+          ))}
         </div>
+
+        {/* Welcome Section */}
+        <Card className="bg-gradient-to-br from-card to-card/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" /> Bienvenue
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              Système ERP V5 entièrement sécurisé avec architecture multi-tenant, RBAC avancé, et isolation complète des données par filiale.
+            </p>
+          </CardContent>
+        </Card>
       </div>
-    </SidebarProvider>
+    </ERPLayout>
   );
 }

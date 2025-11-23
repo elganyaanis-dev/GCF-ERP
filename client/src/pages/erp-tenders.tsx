@@ -1,115 +1,77 @@
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Users, Settings, FileText, BarChart3, Globe, ExternalLink } from "lucide-react";
-import { useLocation } from "wouter";
-import { ERP_CONFIG, TENDER_PLATFORMS } from "@/App";
+import { Globe, BarChart3, ExternalLink, FileText, Users } from "lucide-react";
+import { ERPLayout } from "@/components/erp-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { TENDER_PLATFORMS } from "@/App";
 
 export default function ERPTenders() {
-  const [, navigate] = useLocation();
-  const selectedERP = sessionStorage.getItem("selected_erp") || "gcf";
-  const erpConfig = ERP_CONFIG[selectedERP as keyof typeof ERP_CONFIG];
-
   const menuItems = [
     { label: "Tableau de bord", icon: BarChart3, path: "/dashboard" },
     { label: "Marchés Publics", icon: Globe, path: "/tenders" },
     { label: "Employés", icon: Users, path: "/employees" },
     { label: "Documents", icon: FileText, path: "/documents" },
-    { label: "Paramètres", icon: Settings, path: "/settings" },
   ];
 
-  const style = {
-    "--sidebar-width": "16rem",
-    "--sidebar-width-icon": "3rem",
-  };
-
   return (
-    <SidebarProvider style={style as React.CSSProperties}>
-      <div className="flex h-screen w-full">
-        <Sidebar>
-          <SidebarContent>
-            <div className="p-4 mb-4">
-              <h2 className="text-lg font-bold">{erpConfig?.name}</h2>
-              <p className="text-xs text-muted-foreground">{erpConfig?.subtitle}</p>
+    <ERPLayout menuItems={menuItems} title="Marchés Publics Algérie">
+      <div className="p-8 space-y-6">
+        <Card className="hover-elevate transition-all">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5" /> Plateformes Algériennes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-6">
+              Accès direct aux 7 principales plateformes de marchés publics algériens
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {TENDER_PLATFORMS.map((platform) => (
+                <a
+                  key={platform.url}
+                  href={platform.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex"
+                >
+                  <Button variant="outline" className="w-full justify-between hover-elevate">
+                    <span>{platform.name}</span>
+                    <ExternalLink className="h-4 w-4 ml-2" />
+                  </Button>
+                </a>
+              ))}
             </div>
-            <SidebarGroup>
-              <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {menuItems.map((item) => (
-                    <SidebarMenuItem key={item.path}>
-                      <SidebarMenuButton asChild>
-                        <button
-                          onClick={() => navigate(item.path)}
-                          className="flex items-center gap-2 w-full"
-                        >
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.label}</span>
-                        </button>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+          </CardContent>
+        </Card>
 
-            <SidebarGroup className="mt-auto">
-              <SidebarGroupLabel>Plateformes Algériennes</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <div className="space-y-2">
-                  {TENDER_PLATFORMS.map((platform) => (
-                    <a
-                      key={platform.url}
-                      href={platform.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded hover-elevate"
-                    >
-                      <span className="flex-1 truncate">{platform.name}</span>
-                      <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                    </a>
-                  ))}
-                </div>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-        </Sidebar>
-
-        <div className="flex-1 overflow-auto">
-          <header className="flex items-center justify-between px-6 py-4 border-b bg-card">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger />
-              <h1 className="text-2xl font-bold">Marchés Publics Algérie</h1>
-            </div>
-          </header>
-
-          <main className="p-8 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Plateformes de Marchés Publics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-6">
-                  Accédez aux 7 principales plateformes de marchés publics algériens
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {TENDER_PLATFORMS.map((platform) => (
-                    <a
-                      key={platform.url}
-                      href={platform.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 border rounded-lg hover-elevate transition-all"
-                    >
-                      <span className="font-medium">{platform.name}</span>
-                      <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                    </a>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </main>
+        {/* Tenders Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">Marchés Suivis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">--</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">Participations</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">--</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">Remportés</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">--</div>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    </SidebarProvider>
+    </ERPLayout>
   );
 }

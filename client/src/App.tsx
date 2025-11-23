@@ -71,18 +71,17 @@ export const TENDER_PLATFORMS = [
 
 function AuthRouter() {
   const { isAuthenticated, isLoading, user } = useAuth();
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const [selectedERP, setSelectedERP] = useState<string | null>(() =>
     sessionStorage.getItem("selected_erp")
   );
 
-  // Auto-redirect from "/" to ERP selector
+  // Auto-navigate to dashboard when ERP is selected
   useEffect(() => {
-    if (!selectedERP && location === "/" && !isLoading && isAuthenticated) {
-      sessionStorage.removeItem("selected_erp");
-      setSelectedERP(null);
+    if (selectedERP && location !== "/dashboard") {
+      navigate("/dashboard");
     }
-  }, [location, isLoading, isAuthenticated, selectedERP]);
+  }, [selectedERP, navigate, location]);
 
   if (isLoading) {
     return (
@@ -100,7 +99,7 @@ function AuthRouter() {
   if (!selectedERP) {
     return (
       <ERPSelector
-        onSelectERP={(erp) => {
+        onSelectERP={(erp: string) => {
           sessionStorage.setItem("selected_erp", erp);
           setSelectedERP(erp);
         }}

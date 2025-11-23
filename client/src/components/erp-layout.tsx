@@ -56,6 +56,16 @@ export function ERPLayout({ children, menuItems, title }: ERPLayoutProps) {
               <p className="text-xs text-muted-foreground">
                 {erpConfig?.subtitle}
               </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleChangeERP}
+                className="w-full mt-3 justify-start gap-2 hover-elevate"
+                data-testid="button-change-erp-sidebar"
+              >
+                <ArrowLeftRight className="h-4 w-4" />
+                <span>Changer d'ERP</span>
+              </Button>
             </div>
 
             <SidebarGroup>

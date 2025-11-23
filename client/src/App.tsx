@@ -23,6 +23,7 @@ import ERPTimesheet from "@/pages/erp-timesheet";
 import ERPInventory from "@/pages/erp-inventory";
 import ERPContracts from "@/pages/erp-contracts";
 import ERPReports from "@/pages/erp-reports";
+import ERPMissions from "@/pages/erp-missions";
 import AdminConsole from "@/pages/admin-console";
 import NotFound from "@/pages/not-found";
 
@@ -62,7 +63,7 @@ function Router() {
 
   // Auto-navigate to dashboard when ERP is selected
   useEffect(() => {
-    const validPaths = ["/dashboard", "/employees", "/projects", "/documents", "/payroll", "/organization", 
+    const validPaths = ["/dashboard", "/employees", "/projects", "/missions", "/documents", "/payroll", "/organization", 
                        "/tenders", "/settings", "/communications", "/timesheet", "/inventory", "/contracts", 
                        "/reports", "/admin"];
     if (selectedERP && !validPaths.some(path => location.includes(path))) {
@@ -100,6 +101,7 @@ function Router() {
       <Route path="/dashboard" component={ERPDashboard} />
       <Route path="/employees" component={ERPEmployees} />
       <Route path="/projects" component={ERPProjects} />
+      <Route path="/missions" component={ERPMissions} />
       <Route path="/documents" component={ERPDocuments} />
       <Route path="/payroll" component={ERPPayroll} />
       <Route path="/organization" component={ERPOrganization} />

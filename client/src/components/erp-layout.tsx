@@ -79,7 +79,7 @@ export function ERPLayout({ children, menuItems, title }: ERPLayoutProps) {
                         <button
                           onClick={() => navigate(item.path)}
                           className="flex items-center gap-2 w-full cursor-pointer text-sm"
-                          data-testid={`button-nav-${item.label.toLowerCase()}`}
+                          data-testid={`button-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                         >
                           {item.icon && <item.icon className="h-4 w-4 flex-shrink-0" />}
                           <span className="hidden sm:inline">{item.label}</span>

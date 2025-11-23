@@ -14,7 +14,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
-      res.json(user);
+      // Don't expose admin/director roles or accreditation levels to frontend
+      if (user) {
+        const { role, accreditation_level, ...safeUser } = user;
+        res.json(safeUser);
+      } else {
+        res.json({ id: userId });
+      }
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -497,7 +503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware to check admin-only access for structure modifications
   const requireAdmin = (req: any, res: any, next: any) => {
     if (req.user?.role !== 'admin') {
-      return res.status(403).json({ message: "Accès refusé: seuls les admins peuvent modifier la structure ERP" });
+      return res.status(403).json({ message: "Accès refusé" });
     }
     next();
   };

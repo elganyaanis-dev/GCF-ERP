@@ -873,10 +873,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       adminMessages.push(message);
+
+      // Auto-process admin messages for common commands
+      if (content.toLowerCase().includes("adresse") || content.toLowerCase().includes("address")) {
+        const addressMatch = content.match(/(?:l'adresse|address)[:\s]+([^|]+)/i);
+        if (addressMatch) {
+          const address = addressMatch[1].trim();
+          await storage.setCompanySetting("company_address", address, "Company main address", "address", user.id);
+        }
+      }
+
       res.status(201).json(message);
     } catch (error) {
       console.error("Error creating admin communication:", error);
       res.status(500).json({ message: "Failed to create communication" });
+    }
+  });
+
+  // ============ COMPANY SETTINGS ROUTES ============
+  app.get('/api/company-settings', async (req, res) => {
+    try {
+      const settings = await storage.getCompanySettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching company settings:", error);
+      res.status(500).json({ message: "Failed to fetch settings" });
+    }
+  });
+
+  app.get('/api/company-settings/:key', async (req, res) => {
+    try {
+      const setting = await storage.getCompanySetting(req.params.key);
+      if (!setting) {
+        return res.status(404).json({ message: "Setting not found" });
+      }
+      res.json(setting);
+    } catch (error) {
+      console.error("Error fetching setting:", error);
+      res.status(500).json({ message: "Failed to fetch setting" });
+    }
+  });
+
+  app.post('/api/company-settings', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user || !user.isSupremeAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { key, value, description, category } = req.body;
+      const setting = await storage.setCompanySetting(key, value, description, category, user.id);
+      res.status(201).json(setting);
+    } catch (error) {
+      console.error("Error setting company setting:", error);
+      res.status(500).json({ message: "Failed to set setting" });
     }
   });
 

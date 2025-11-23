@@ -29,6 +29,8 @@ import {
   employeeDonations,
   employeeLoans,
   serviceCustomizations,
+  companySettings,
+  type CompanySetting,
   type User,
   type UpsertUser,
   type Employee,
@@ -585,6 +587,28 @@ export class DatabaseStorage implements IStorage {
   async createServiceCustomization(data: any): Promise<ServiceCustomization> {
     const [newCustomization] = await db.insert(serviceCustomizations).values(data).returning();
     return newCustomization;
+  }
+
+  // Company Settings operations
+  async getCompanySetting(key: string): Promise<CompanySetting | undefined> {
+    const [setting] = await db.select().from(companySettings).where(eq(companySettings.key, key));
+    return setting;
+  }
+
+  async getCompanySettings(): Promise<CompanySetting[]> {
+    return await db.select().from(companySettings);
+  }
+
+  async setCompanySetting(key: string, value: string, description?: string, category?: string, userId?: string): Promise<CompanySetting> {
+    const [setting] = await db
+      .insert(companySettings)
+      .values({ key, value, description, category, updatedBy: userId })
+      .onConflictDoUpdate({
+        target: companySettings.key,
+        set: { value, description, category, updatedBy: userId, updatedAt: new Date() },
+      })
+      .returning();
+    return setting;
   }
 
   // Dashboard stats

@@ -617,3 +617,16 @@ export const insertERPCommunicationSchema = createInsertSchema(erpCommunications
 
 export type InsertERPCommunication = z.infer<typeof insertERPCommunicationSchema>;
 export type ERPCommunication = typeof erpCommunications.$inferSelect;
+
+// Company Settings table
+export const companySettings = pgTable("company_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  key: varchar("key").notNull().unique(),
+  value: text("value").notNull(),
+  description: varchar("description"),
+  category: varchar("category"), // general, address, contact, branding
+  updatedBy: varchar("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type CompanySetting = typeof companySettings.$inferSelect;

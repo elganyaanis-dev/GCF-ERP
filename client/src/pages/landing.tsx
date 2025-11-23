@@ -1,10 +1,33 @@
+import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "wouter";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, Users, FolderKanban, FileText, BarChart3, Shield } from "lucide-react";
+import { Building2, Users, FolderKanban, FileText, BarChart3, Shield, Zap, Lock, BarChart2 } from "lucide-react";
 import railElectrLogo from "@assets/image_1763848297043.png";
 import gcfLogo from "@assets/channels4_profile_1763848297051.jpg";
 
 export default function Landing() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const [, navigate] = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return null;
+  }
   const features = [
     {
       icon: Users,

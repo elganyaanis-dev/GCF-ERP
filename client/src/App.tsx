@@ -68,8 +68,8 @@ function AuthRouter() {
             <Header />
             <main className="flex-1 overflow-auto">
               <Switch>
-                <Route path="/select" component={SubsidiarySelector} />
-                <Route path="/" component={Dashboard} />
+                <Route path="/" component={SubsidiarySelector} />
+                <Route path="/dashboard" component={Dashboard} />
                 <Route path="/subsidiaries" component={Subsidiaries} />
                 <Route path="/employees" component={Employees} />
                 <Route path="/leaves" component={Leaves} />

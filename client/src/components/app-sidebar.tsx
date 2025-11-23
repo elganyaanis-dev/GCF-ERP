@@ -50,7 +50,7 @@ export function AppSidebar() {
   const menuItems = [
     {
       title: "Tableau de bord",
-      url: "/",
+      url: "/dashboard",
       icon: LayoutDashboard,
     },
     {

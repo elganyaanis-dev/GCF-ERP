@@ -25,17 +25,14 @@ export function AdminChat() {
   const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Check if user is supreme admin (elganya.anis@gmail.com)
+  // Check if user is supreme admin BEFORE all hooks
   const isSupremeAdmin = typeof user === "object" && user ? (user as any)?.email === "elganya.anis@gmail.com" : false;
-
-  if (!isSupremeAdmin) {
-    return null;
-  }
 
   // Fetch admin chat messages
   const { data: messages = [], isLoading } = useQuery({
     queryKey: ["/api/admin-chat"],
-    refetchInterval: 3000, // Poll every 3 seconds
+    refetchInterval: isSupremeAdmin ? 3000 : undefined, // Only poll if supreme admin
+    enabled: isSupremeAdmin, // Only enable query if supreme admin
   });
 
   // Mutation to send message
@@ -85,6 +82,11 @@ export function AdminChat() {
         return "bg-slate-500/20 text-slate-700 border-slate-500/50";
     }
   };
+
+  // Return nothing if not supreme admin (after ALL hooks)
+  if (!isSupremeAdmin) {
+    return null;
+  }
 
   return (
     <>

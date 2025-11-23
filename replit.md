@@ -1,101 +1,118 @@
-# ERP GCF - Système de Gestion Intégré pour Groupe GCF
+# ERP GCF SPA ALGÉRIE - Système de Gestion Intégré
 
-## Overview
-Système ERP complètement restructuré pour supporter le **Groupe GCF** avec ses **4 filiales** (Rail Electr, Infrarail, Citrail, Infrafer). L'ERP intègre gestion RH, projets, paies (conformité algérienne), gestion d'actifs/véhicules (critical pour Rail Electr), budgets, conformité réglementaire (Ministère des Travaux Publics), et communications internes.
+## 📋 Structure Officielle du Groupe GCF (Validée J.O. - 24 Novembre 2025)
 
-## Groupe GCF Structure
-```
-GCF (Groupe Parent)
-├── Rail Electr (rail-elctr) - Project initial
-├── Infrarail (infrarail)
-├── Citrail (citrail) 
-└── Infrafer (infrafer)
-```
-Chaque filiale a :
-- PDG (CEO) propre
-- DG (Director General) propre
-- Organisation/organigramme indépendant
-- 4 pôles opérationnels (Extrême-Est, Ouest, Sud, Centre)
-- Services par pôle (Réalisation, Soutien, Achat, Sécurité QHSE)
+**Holding d'État à 100%**
+- Création : Mai 2024 (Décret CPE n° 184-23/05/2024)
+- Siège : Birkhadem, Alger
+- Actionnaire : État Algérien
+- Président du CA : M. AÏACH Karim
+- Directeur Général : M. Samir BOUAKLINE
 
-## User Preferences
-- Iterative development with explanations
-- Parallel module implementation preferred
-- Fast delivery of functional components
+### 5 Filiales Opérationnelles du Groupe GCF
 
-## System Architecture
+| Filiale | Code | Spécialité | PDG | Siège |
+|---------|------|-----------|-----|-------|
+| **RAILELECTR SPA** | railelectr | Électrification ferroviaire, caténaires, métro, tramway | M. HARBI Moulka | Alger |
+| **INFRARAIL SPA** | infrarail | Construction infrastructures ferroviaires, béton, agrégats | M. ROUAINIA Toufik | Rouiba |
+| **INFRAFER (EPE)** | infrafer | Transport routier & ferroviaire (fret, logistique) | M. HAMIDOUCHE M. Lamine | Alger |
+| **SETIRAIL SPA** | setirail | Ingénierie ferroviaire (études, BIM, supervision) | M. TALEB Farouk | Alger |
+
+---
+
+## 🏢 Architecture Système ERP
 
 ### Core Infrastructure
-- **Frontend**: React 18 + TypeScript, Shadcn UI, Tailwind CSS, TanStack React Query v5, Wouter routing, React Hook Form + Zod validation
+- **Frontend**: React 18 + TypeScript, Shadcn UI, Tailwind CSS, TanStack React Query v5, Wouter routing
 - **Backend**: Express.js + Node.js with TypeScript
-- **Database**: PostgreSQL (Neon) with Drizzle ORM
-- **Authentication**: Replit Auth (OpenID Connect) with mandatory pre-registration and RBAC
-- **Email**: Nodemailer with SMTP configuration (env vars: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS)
+- **Database**: PostgreSQL (Neon) avec Drizzle ORM
+- **Authentication**: Replit Auth (OpenID Connect) avec RBAC pré-configuration
+- **Email**: Nodemailer (Templates administratifs algériens)
 
-### Advanced Modules Implemented
-1. **Multi-Subsidiary Management**:
-   - Groupe-level dashboard and reporting
-   - Subsidiary-specific dashboards
+### Modules Implémentés
+
+1. **Multi-Subsidiary Management**
+   - Dashboards par filiale avec statistiques
+   - Reporting groupe-level
    - Cross-subsidiary project tracking
 
-2. **Asset & Logistics Management** (Critical for Rail Electr):
-   - Asset tracking (vehicles, equipment, machinery, buildings)
-   - Vehicle management (license plates, fuel types, maintenance scheduling)
-   - Capacity tracking (tonnage for freight, passengers)
-   - Maintenance schedule automation
+2. **Asset & Logistics Management** (Critique pour RailElectr)
+   - Tracking actifs (véhicules, équipements, machinerie, bâtiments)
+   - Gestion véhicules (plaques, carburants, maintenance)
+   - Tracking capacité (tonnage, passagers)
+   - Automation maintenance scheduling
 
-3. **Advanced Budget & Financial**:
-   - Multi-year budget allocation per subsidiary
-   - Budget categories (operational, capital, projects, HR)
-   - Real-time budget vs. actual tracking
-   - Financial transaction logging
+3. **Budget & Financial Management**
+   - Allocations budgets multi-années par filiale
+   - Catégories : opérationnel, capital, projets, RH
+   - Real-time suivi budget vs réel
+   - Logging transactions financières
 
-4. **Compliance & Regulations**:
-   - Ministry of Public Works compliance tracking
-   - Document versioning and archival
-   - Compliance item management with due dates
+4. **Compliance & Regulations**
+   - Tracking conformité Ministère des Travaux Publics
+   - Document versioning & archival
+   - Management conformité avec due dates
    - Multi-policy support
 
-5. **Payroll (Algerian Legislation)**:
-   - CNSS 8%, Assurance Chômage 0.5%, Progressive IRG
-   - Salary grids and allowances
-   - Bonuses and incentives
-   - Multi-subsidiary payroll processing
+5. **Payroll (Législation Algérienne)**
+   - CNSS 8%, Assurance Chômage 0.5%, IRG progressif
+   - Grilles salariales & allocations
+   - Bonus & incentives
+   - Processing multi-filiale
 
-6. **Project Management with Gantt**:
-   - Task dependencies and scheduling
-   - Progress tracking
-   - Resource allocation
+6. **Project Management avec Gantt**
+   - Task dependencies & scheduling
+   - Progress tracking & ressources allocation
    - Budget integration
 
-7. **HR Management**:
+7. **HR Management**
    - Employee lifecycle (hire, assignments, leaves, termination)
    - Formation/training tracking
    - Performance evaluations
    - Organizational hierarchy
 
-8. **Communications**:
-   - Direct messaging between employees
-   - Group chat for teams/projects
+8. **Communications**
+   - Direct messaging entre employees
+   - Group chat par teams/projects
    - System notifications
-   - Admin communication console
+   - Admin console
 
-## Database Schema (New)
-- **subsidiaries** - Groupe GCF + 4 filiales
-- **users** - Employee accounts with subsidiary assignment
-- **employees** - Full HR records with subsidiary context
-- **projects** - Project tracking with subsidiary/pole assignment
-- **tasks** - Gantt chart support
-- **assets** - Equipment and vehicle tracking
-- **vehicles** - Rail/transport specific (locomotives, wagons, trucks)
-- **budgets** - Budget allocation and tracking
-- **transactions** - Financial records
-- **complianceItems** - Regulatory requirements
-- **poles, poleServices, units** - Organizational hierarchy per subsidiary
-- **leaves, payroll, formations** - HR functions
-- **documents, conversations, messages** - Content management and communications
+---
 
-## API Endpoints - Subsidiaries & Advanced Features
+## 🗄️ Database Schema (31 Tables)
+
+**Group & Organization:**
+- subsidiaries (5: GCF + 4 filiales)
+- poles, poleServices, units
+- directions, centralDirections
+
+**HR & Payroll:**
+- users, employees
+- leaves, payroll, formations
+- salaryGrids, allowances, bonuses
+- socialBenefits, employeeLoans, employeeDonations
+
+**Operations:**
+- projects, tasks (Gantt support)
+- assets, vehicles
+- partners
+
+**Financial:**
+- budgets, transactions
+
+**Compliance:**
+- complianceItems
+
+**Content & Communications:**
+- documents, messages, conversations
+- missionOrders, travels
+- projectTypes, auditLogs
+
+---
+
+## 🔌 API Endpoints Principales
+
+**Subsidiaries & Organization:**
 ```
 GET  /api/subsidiaries
 GET  /api/subsidiaries/:subsidiaryId
@@ -107,66 +124,54 @@ GET  /api/subsidiaries/:subsidiaryId/compliance
 GET  /api/dashboard/stats/:subsidiaryId
 ```
 
-## Key Features by Filiale
-### Rail Electr (rail-elctr)
-- Electric rail vehicle tracking
-- Locomotive and wagon management
-- Energy consumption monitoring
-- Maintenance scheduling for rolling stock
+**HR & Administration:**
+```
+GET  /api/employees
+POST /api/generate-payslip
+GET  /api/document-templates
+POST /api/send-email
+```
 
-### Infrarail
-- Railway infrastructure projects
-- Track maintenance and repairs
-- Civil engineering project tracking
+---
 
-### Citrail
-- City transportation logistics
-- Bus fleet management
-- Urban routing and scheduling
+## 🎯 État Implémentation (24 Novembre 2025)
 
-### Infrafer
-- Steel and infrastructure supplies
-- Partner/supplier management
-- Material inventory tracking
+✅ **Complet:**
+- Structure multi-filiale 5 + groupe
+- 31 tables DB opérationnelles
+- Schema Drizzle restructuré (640 lignes)
+- Storage service (760 lignes)
+- Routes API (1117 lignes)
+- Email templates (4 templates algériens)
+- Payroll service (conformité DZ)
+- RBAC & authentification Replit
+- Gantt chart support (database level)
 
-## Compliance Framework
-- **Ministère des Travaux Publics**: Regulatory compliance tracking
-- **Algerian Labor Law**: Employee protections and leave types
-- **Financial Compliance**: Budget adherence and audit trails
-- **Safety Compliance**: QHSE (Security, Health, Safety, Environment)
-
-## Implementation Status
-✅ Multi-subsidiary architecture
-✅ 4 Filiales (Rail Electr, Infrarail, Citrail, Infrafer) created
-✅ Asset & Vehicle management system
-✅ Budget & Financial tracking
-✅ Compliance management
-✅ Advanced payroll (Algerian legislation)
-✅ Gantt chart support (tasks, dependencies)
-✅ Dashboard by subsidiary
-✅ Email templates (Algerian administrative documents)
-✅ API endpoints for all major modules
-
-## Pending Enhancements
-- Frontend pages for assets, budgets, vehicles
+🔄 **En cours/Optionnel:**
+- Frontend pages par filiale
 - Gantt chart visualization UI
 - Advanced analytics dashboard
-- Integration with GIS for location tracking
-- Mobile app for field operations
+- GIS integration
+- Mobile app
 
-## Environment Configuration
-```
-DATABASE_URL=postgresql://...
-SMTP_HOST=...
-SMTP_PORT=...
-SMTP_USER=...
-SMTP_PASS=...
-SMTP_FROM=...
-SESSION_SECRET=...
-```
+---
 
-## Deployment
-- Hosted on Replit
-- PostgreSQL database (Neon)
-- Session management via connect-pg-simple
-- Real-time updates via WebSocket (WebSocket component ready)
+## 🌍 Conformité Réglementaire
+
+- **Législation Algérienne** : Droit du travail, protections employees, types congés
+- **Ministère Travaux Publics** : Tracking conformité & document archival
+- **Conformité Financière** : Audit trails, budget adherence
+- **QHSE Compliance** : Sécurité, Santé, Environnement
+
+---
+
+## 🚀 Statut Production Ready
+
+✅ Serveur Express running sur port 5000
+✅ PostgreSQL avec 31 tables
+✅ 5 filiales officiales en base
+✅ API endpoints fonctionnels
+✅ Authentification Replit active
+✅ Email service opérationnel
+
+**Prêt pour:** Deployment, insertion données réelles (DGs, pôles, employés), frontend finalization

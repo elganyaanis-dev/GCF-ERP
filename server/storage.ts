@@ -14,7 +14,9 @@ import {
   missionOrders,
   travels,
   directions,
+  centralDirections,
   poles,
+  poleServices,
   units,
   type User,
   type UpsertUser,
@@ -392,6 +394,14 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(units).orderBy(units.city);
   }
 
+  async getCentralDirections(): Promise<any[]> {
+    return await db.select().from(centralDirections).orderBy(centralDirections.name);
+  }
+
+  async getPoleServices(poleId: string): Promise<any[]> {
+    return await db.select().from(poleServices).where(eq(poleServices.poleId, poleId)).orderBy(poleServices.name);
+  }
+
   async createDirection(data: any): Promise<any> {
     const [direction] = await db
       .insert(directions)
@@ -414,6 +424,22 @@ export class DatabaseStorage implements IStorage {
       .values(data)
       .returning();
     return unit;
+  }
+
+  async createCentralDirection(data: any): Promise<any> {
+    const [centralDir] = await db
+      .insert(centralDirections)
+      .values(data)
+      .returning();
+    return centralDir;
+  }
+
+  async createPoleService(data: any): Promise<any> {
+    const [service] = await db
+      .insert(poleServices)
+      .values(data)
+      .returning();
+    return service;
   }
 
   // Dashboard stats

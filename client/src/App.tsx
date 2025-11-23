@@ -20,6 +20,7 @@ import Messaging from "@/pages/messaging";
 import MissionOrders from "@/pages/mission-orders";
 import Travels from "@/pages/travels";
 import Organization from "@/pages/organization";
+import OrgStructure from "@/pages/org-structure";
 import { useAuth } from "@/hooks/useAuth";
 
 function AuthRouter() {
@@ -71,6 +72,7 @@ function AuthRouter() {
               <Route path="/mission-orders" component={MissionOrders} />
               <Route path="/travels" component={Travels} />
               <Route path="/organization" component={Organization} />
+              <Route path="/org-structure" component={OrgStructure} />
               <Route component={NotFound} />
             </Switch>
           </main>

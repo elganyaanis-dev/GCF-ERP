@@ -89,8 +89,11 @@ export function AppSidebar() {
     },
     {
       title: "Organisation",
-      url: "/organization",
       icon: Building2,
+      items: [
+        { title: "Structure de Base", url: "/organization", icon: Building2 },
+        { title: "Directions & Services", url: "/org-structure", icon: Building2 },
+      ],
     },
     {
       title: "Paramètres",
@@ -128,7 +131,7 @@ export function AppSidebar() {
               {menuItems.map((item) => {
                 if (item.items) {
                   return (
-                    <Collapsible key={item.title} asChild defaultOpen={location.startsWith('/employees') || location.startsWith('/leaves') || location.startsWith('/payroll') || location.startsWith('/formations') || location.startsWith('/mission-orders') || location.startsWith('/travels')}>
+                    <Collapsible key={item.title} asChild defaultOpen={location.startsWith('/employees') || location.startsWith('/leaves') || location.startsWith('/payroll') || location.startsWith('/formations') || location.startsWith('/mission-orders') || location.startsWith('/travels') || location.startsWith('/organization') || location.startsWith('/org-structure')}>
                       <SidebarMenuItem>
                         <CollapsibleTrigger asChild>
                           <SidebarMenuButton data-testid={`menu-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>

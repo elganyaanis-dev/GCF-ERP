@@ -26,12 +26,22 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// Organizational Structure - Direction Générale
+// Organizational Structure - Direction Générale (HQ)
 export const directions = pgTable("directions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
   location: varchar("location").notNull(),
   directorId: varchar("director_id").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Central Directions at HQ Level (DG)
+export const centralDirections = pgTable("central_directions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(), // Marché, Réalisation, RH, Matériels, Études
+  type: varchar("type").notNull(), // market, realization, hr, materials, studies
+  directorId: varchar("director_id").references(() => users.id),
+  description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -43,6 +53,16 @@ export const poles = pgTable("poles", {
   location: varchar("location").notNull(),
   directorId: varchar("director_id").references(() => users.id),
   directionId: varchar("direction_id").references(() => directions.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Services within Poles
+export const poleServices = pgTable("pole_services", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  poleId: varchar("pole_id").references(() => poles.id, { onDelete: 'cascade' }).notNull(),
+  name: varchar("name").notNull(), // Soutien, Réalisation, Achats, Études
+  type: varchar("type").notNull(), // support, realization, procurement, studies, projects
+  managerUserId: varchar("manager_user_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -66,6 +86,7 @@ export const users = pgTable("users", {
   role: varchar("role").default("user"), // admin, manager, director, user
   accreditationLevel: varchar("accreditation_level").default("0"), // 0: User, 1: Supervisor, 2: Manager, 3: Director, 4: Admin
   unitId: varchar("unit_id").references(() => units.id),
+  poleServiceId: varchar("pole_service_id").references(() => poleServices.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -84,6 +105,7 @@ export const employees = pgTable("employees", {
   position: varchar("position").notNull(),
   department: varchar("department").notNull(),
   unitId: varchar("unit_id").references(() => units.id),
+  poleServiceId: varchar("pole_service_id").references(() => poleServices.id),
   supervisorId: varchar("supervisor_id").references(() => employees.id),
   hireDate: date("hire_date").notNull(),
   salary: decimal("salary", { precision: 10, scale: 2 }),
@@ -282,7 +304,26 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type Notification = typeof notifications.$inferSelect;
 
-// MESSAGING - Messages table
+// MESSAGING - Conversations table
+export const conversations = pgTable("conversations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name"),
+  type: varchar("type").default("direct"), // direct, group
+  createdBy: varchar("created_by").references(() => users.id).notNull(),
+  lastMessageAt: timestamp("last_message_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertConversationSchema = createInsertSchema(conversations).omit({
+  id: true,
+  createdAt: true,
+  lastMessageAt: true,
+});
+
+export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type Conversation = typeof conversations.$inferSelect;
+
+// Messages table
 export const messages = pgTable("messages", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: 'cascade' }).notNull(),
@@ -301,25 +342,6 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
 
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type Message = typeof messages.$inferSelect;
-
-// Conversations table
-export const conversations = pgTable("conversations", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name"),
-  type: varchar("type").default("direct"), // direct, group
-  createdBy: varchar("created_by").references(() => users.id).notNull(),
-  lastMessageAt: timestamp("last_message_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const insertConversationSchema = createInsertSchema(conversations).omit({
-  id: true,
-  createdAt: true,
-  lastMessageAt: true,
-});
-
-export type InsertConversation = z.infer<typeof insertConversationSchema>;
-export type Conversation = typeof conversations.$inferSelect;
 
 // Conversation Participants
 export const conversationParticipants = pgTable("conversation_participants", {

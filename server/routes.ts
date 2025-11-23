@@ -544,6 +544,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ CENTRAL DIRECTIONS ROUTES ============
+  app.get('/api/organization/central-directions', isAuthenticated, async (req, res) => {
+    try {
+      const dirs = await storage.getCentralDirections();
+      res.json(dirs);
+    } catch (error) {
+      console.error("Error fetching central directions:", error);
+      res.status(500).json({ message: "Failed to fetch central directions" });
+    }
+  });
+
+  app.post('/api/organization/central-directions', isAuthenticated, async (req, res) => {
+    try {
+      const dir = await storage.createCentralDirection(req.body);
+      res.status(201).json(dir);
+    } catch (error) {
+      console.error("Error creating central direction:", error);
+      res.status(500).json({ message: "Failed to create central direction" });
+    }
+  });
+
+  // ============ POLE SERVICES ROUTES ============
+  app.get('/api/organization/poles/:poleId/services', isAuthenticated, async (req, res) => {
+    try {
+      const services = await storage.getPoleServices(req.params.poleId);
+      res.json(services);
+    } catch (error) {
+      console.error("Error fetching pole services:", error);
+      res.status(500).json({ message: "Failed to fetch pole services" });
+    }
+  });
+
+  app.post('/api/organization/pole-services', isAuthenticated, async (req, res) => {
+    try {
+      const service = await storage.createPoleService(req.body);
+      res.status(201).json(service);
+    } catch (error) {
+      console.error("Error creating pole service:", error);
+      res.status(500).json({ message: "Failed to create pole service" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

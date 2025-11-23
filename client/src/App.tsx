@@ -33,7 +33,7 @@ import { AdminChat } from "@/components/admin-chat";
 
 function AuthRouter() {
   const { isAuthenticated, isLoading, user } = useAuth();
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const [subsidiaryId, setSubsidiaryId] = useState<string>(() => {
     return sessionStorage.getItem("selected_subsidiary") || "gcf";
   });
@@ -43,6 +43,14 @@ function AuthRouter() {
       setSubsidiaryId((user as any).subsidiary_id);
     }
   }, [user]);
+
+  // Redirect from "/" to "/dashboard" when subsidiary already selected
+  useEffect(() => {
+    const hasSelectedSubsidiary = sessionStorage.getItem("selected_subsidiary");
+    if ((location === "/" || location === "") && hasSelectedSubsidiary && !isLoading) {
+      navigate("/dashboard");
+    }
+  }, [location, navigate, isLoading]);
 
   if (isLoading) {
     return (

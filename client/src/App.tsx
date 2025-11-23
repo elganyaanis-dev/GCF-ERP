@@ -9,6 +9,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Header } from "@/components/header";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
+import SubsidiarySelector from "@/pages/subsidiary-selector";
 import Dashboard from "@/pages/dashboard";
 import Employees from "@/pages/employees";
 import Leaves from "@/pages/leaves";
@@ -67,6 +68,7 @@ function AuthRouter() {
             <Header />
             <main className="flex-1 overflow-auto">
               <Switch>
+                <Route path="/select" component={SubsidiarySelector} />
                 <Route path="/" component={Dashboard} />
                 <Route path="/subsidiaries" component={Subsidiaries} />
                 <Route path="/employees" component={Employees} />

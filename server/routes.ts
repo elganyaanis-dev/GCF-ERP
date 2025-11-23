@@ -1032,6 +1032,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ SUBSIDIARIES & GROUP MANAGEMENT (GCF) ============
+  app.get('/api/subsidiaries', isAuthenticated, async (req, res) => {
+    try {
+      const subs = await storage.getSubsidiaries();
+      res.json(subs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch subsidiaries" });
+    }
+  });
+
+  app.get('/api/subsidiaries/:subsidiaryId', isAuthenticated, async (req, res) => {
+    try {
+      const sub = await storage.getSubsidiaryById(req.params.subsidiaryId);
+      res.json(sub);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch subsidiary" });
+    }
+  });
+
+  app.get('/api/subsidiaries/:subsidiaryId/poles', isAuthenticated, async (req, res) => {
+    try {
+      const poles = await storage.getPolesBySubsidiary(req.params.subsidiaryId);
+      res.json(poles);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch poles" });
+    }
+  });
+
+  // ============ ASSETS & VEHICLES (Logistics) ============
+  app.get('/api/subsidiaries/:subsidiaryId/assets', isAuthenticated, async (req, res) => {
+    try {
+      const assets = await storage.getAssets(req.params.subsidiaryId);
+      res.json(assets);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch assets" });
+    }
+  });
+
+  app.get('/api/subsidiaries/:subsidiaryId/vehicles', isAuthenticated, async (req, res) => {
+    try {
+      const vehicles = await storage.getVehicles(req.params.subsidiaryId);
+      res.json(vehicles);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch vehicles" });
+    }
+  });
+
+  // ============ BUDGET MANAGEMENT ============
+  app.get('/api/subsidiaries/:subsidiaryId/budgets', isAuthenticated, async (req, res) => {
+    try {
+      const budgets = await storage.getBudgets(req.params.subsidiaryId);
+      res.json(budgets);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch budgets" });
+    }
+  });
+
+  // ============ COMPLIANCE & REGULATIONS ============
+  app.get('/api/subsidiaries/:subsidiaryId/compliance', isAuthenticated, async (req, res) => {
+    try {
+      const items = await storage.getComplianceItems(req.params.subsidiaryId);
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch compliance items" });
+    }
+  });
+
+  // ============ DASHBOARD STATS BY SUBSIDIARY ============
+  app.get('/api/dashboard/stats/:subsidiaryId', isAuthenticated, async (req, res) => {
+    try {
+      const stats = await storage.getDashboardStats(req.params.subsidiaryId);
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

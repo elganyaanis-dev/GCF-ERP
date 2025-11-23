@@ -26,7 +26,45 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// Organizational Structure - Direction Générale (HQ)
+// ============ GROUP & SUBSIDIARIES STRUCTURE ============
+// Groupe GCF (parent company)
+export const subsidiaries = pgTable("subsidiaries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(), // Infrarail, Citrail, RailElectr, Infrafer
+  code: varchar("code").unique().notNull(), // infrarail, citrail, rail-elctr, infrafer
+  type: varchar("type").notNull(), // subsidiary, main
+  location: varchar("location"),
+  email: varchar("email"),
+  phone: varchar("phone"),
+  ceoUserId: varchar("ceo_user_id").references(() => users.id),
+  dgUserId: varchar("dg_user_id").references(() => users.id), // Director General (DG)
+  companyRegistration: varchar("company_registration"),
+  taxId: varchar("tax_id"),
+  logo: varchar("logo"),
+  description: text("description"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type Subsidiary = typeof subsidiaries.$inferSelect;
+
+// Company Settings (HQ level - GCF)
+export const companySettings = pgTable("company_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  key: varchar("key").notNull().unique(),
+  value: text("value").notNull(),
+  description: text("description"),
+  category: varchar("category"), // group, compliance, branding, email
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type CompanySetting = typeof companySettings.$inferSelect;
+
+// ============ ORGANIZATIONAL STRUCTURE ============
+// Directions at HQ Level (DG functions)
 export const directions = pgTable("directions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
@@ -36,9 +74,10 @@ export const directions = pgTable("directions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Central Directions at HQ Level (DG)
+// Central Directions at HQ Level
 export const centralDirections = pgTable("central_directions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id),
   name: varchar("name").notNull(), // Marché, Réalisation, RH, Matériels, Études
   type: varchar("type").notNull(), // market, realization, hr, materials, studies
   email: varchar("email"),
@@ -47,15 +86,15 @@ export const centralDirections = pgTable("central_directions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Organizational Structure - Pôles Opérationnels
+// Operational Poles (Pôles Opérationnels)
 export const poles = pgTable("poles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
   name: varchar("name").notNull(),
   code: varchar("code"),
   region: varchar("region"), // Extrême Est, Centre, Ouest, Sud
   location: varchar("location"),
   directorId: varchar("director_id").references(() => users.id),
-  directionId: varchar("direction_id").references(() => directions.id),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -66,28 +105,28 @@ export const poleServices = pgTable("pole_services", {
   poleId: varchar("pole_id").references(() => poles.id, { onDelete: 'cascade' }).notNull(),
   name: varchar("name").notNull(), // Soutien, Réalisation, Achats, Études
   code: varchar("code"),
-  type: varchar("type"), // support, realization, procurement, studies, projects
+  type: varchar("type"), // support, realization, procurement, studies
   email: varchar("email"),
   managerUserId: varchar("manager_user_id").references(() => users.id),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Organizational Structure - Units/Unités
+// Organizational Units (Unités)
 export const units = pgTable("units", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id).notNull(),
+  poleServiceId: varchar("pole_service_id").references(() => poleServices.id),
   name: varchar("name").notNull(),
   code: varchar("code"),
   city: varchar("city"),
   type: varchar("type"), // study, wilaya, service
   managerId: varchar("manager_id").references(() => users.id),
-  poleServiceId: varchar("pole_service_id").references(() => poleServices.id),
-  poleId: varchar("pole_id").references(() => poles.id),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// User storage table (required for Replit Auth)
+// ============ USERS & AUTHENTICATION ============
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
@@ -95,12 +134,13 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   dateOfBirth: date("date_of_birth"),
   profileImageUrl: varchar("profile_image_url"),
-  role: varchar("role").default("user"), // admin, manager, director, user, supreme_admin
-  accreditationLevel: varchar("accreditation_level").default("0"), // 0: User, 1: Supervisor, 2: Manager, 3: Director, 4: Admin, 5: Supreme Admin
+  role: varchar("role").default("user"), // admin, manager, director, user, ceo, dg
+  accreditationLevel: varchar("accreditation_level").default("0"), // 0-4 + 5 supreme
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id),
   unitId: varchar("unit_id").references(() => units.id),
   poleServiceId: varchar("pole_service_id").references(() => poleServices.id),
-  isPreRegistered: boolean("is_pre_registered").default(false), // Employee pre-registered in system
-  isSupremeAdmin: boolean("is_supreme_admin").default(false), // Supreme admin with direct project modification
+  isPreRegistered: boolean("is_pre_registered").default(false),
+  isSupremeAdmin: boolean("is_supreme_admin").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -108,10 +148,11 @@ export const users = pgTable("users", {
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
-// Employees table
+// ============ EMPLOYEES ============
 export const employees = pgTable("employees", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
   firstName: varchar("first_name").notNull(),
   lastName: varchar("last_name").notNull(),
   email: varchar("email").notNull().unique(),
@@ -123,13 +164,9 @@ export const employees = pgTable("employees", {
   poleServiceId: varchar("pole_service_id").references(() => poleServices.id),
   supervisorId: varchar("supervisor_id").references(() => employees.id),
   hireDate: date("hire_date").notNull(),
-  salary: decimal("salary", { precision: 10, scale: 2 }),
-  salaryGridId: varchar("salary_grid_id").references(() => salaryGrids.id),
+  contractType: varchar("contract_type"), // cdi, cdd, stage
   status: varchar("status").default("active"), // active, inactive, on_leave
-  address: text("address"),
-  city: varchar("city"),
-  country: varchar("country"),
-  profileImage: varchar("profile_image"),
+  salaryGridId: varchar("salary_grid_id").references(() => salaryGrids.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -143,22 +180,20 @@ export const insertEmployeeSchema = createInsertSchema(employees).omit({
 export type InsertEmployee = z.infer<typeof insertEmployeeSchema>;
 export type Employee = typeof employees.$inferSelect;
 
-// Projects table with project types
+// ============ PROJECTS & TASKS ============
 export const projects = pgTable("projects", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
   name: varchar("name").notNull(),
   description: text("description"),
-  projectTypeId: varchar("project_type_id").references(() => projectTypes.id),
-  status: varchar("status").default("planning"), // planning, in_progress, on_hold, completed, cancelled
-  priority: varchar("priority").default("medium"), // low, medium, high, urgent
-  budget: decimal("budget", { precision: 12, scale: 2 }),
-  spent: decimal("spent", { precision: 12, scale: 2 }).default("0"),
+  typeId: varchar("type_id").references(() => projectTypes.id),
+  status: varchar("status").default("planning"), // planning, in_progress, paused, completed, cancelled
+  budget: decimal("budget", { precision: 15, scale: 2 }),
   startDate: date("start_date"),
   endDate: date("end_date"),
   managerId: varchar("manager_id").references(() => employees.id),
-  clientName: varchar("client_name"),
-  partnerId: varchar("partner_id").references(() => partners.id),
-  progress: integer("progress").default(0), // 0-100
+  poleId: varchar("pole_id").references(() => poles.id),
+  progress: integer("progress").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -167,8 +202,6 @@ export const insertProjectSchema = createInsertSchema(projects).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  spent: true,
-  progress: true,
 });
 
 export type InsertProject = z.infer<typeof insertProjectSchema>;
@@ -179,41 +212,13 @@ export const projectTypes = pgTable("project_types", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(), // Public Market, Direct Contract, Subcontracting
   description: text("description"),
-  code: varchar("code").unique().notNull(), // public_market, direct_contract, subcontracting
+  code: varchar("code").unique().notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export type ProjectType = typeof projectTypes.$inferSelect;
 
-// Partners, Suppliers, Subcontractors
-export const partners = pgTable("partners", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(),
-  type: varchar("type").notNull(), // partner, supplier, subcontractor
-  email: varchar("email"),
-  phone: varchar("phone"),
-  address: text("address"),
-  city: varchar("city"),
-  country: varchar("country"),
-  taxId: varchar("tax_id"),
-  bankDetails: text("bank_details"),
-  contactPerson: varchar("contact_person"),
-  status: varchar("status").default("active"), // active, inactive, suspended
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const insertPartnerSchema = createInsertSchema(partners).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type InsertPartner = z.infer<typeof insertPartnerSchema>;
-export type Partner = typeof partners.$inferSelect;
-
-// Tasks table (for Gantt chart)
+// Tasks (Gantt Chart support)
 export const tasks = pgTable("tasks", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   projectId: varchar("project_id").references(() => projects.id, { onDelete: 'cascade' }).notNull(),
@@ -223,8 +228,8 @@ export const tasks = pgTable("tasks", {
   assigneeId: varchar("assignee_id").references(() => employees.id),
   startDate: date("start_date"),
   endDate: date("end_date"),
-  duration: integer("duration"), // in days
-  dependencies: text("dependencies"), // comma-separated task IDs
+  duration: integer("duration"),
+  dependencies: text("dependencies"),
   progress: integer("progress").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -239,19 +244,122 @@ export const insertTaskSchema = createInsertSchema(tasks).omit({
 export type InsertTask = z.infer<typeof insertTaskSchema>;
 export type Task = typeof tasks.$inferSelect;
 
-// Documents table
+// ============ BUDGET & FINANCIAL ============
+export const budgets = pgTable("budgets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  projectId: varchar("project_id").references(() => projects.id, { onDelete: 'cascade' }),
+  year: varchar("year").notNull(),
+  category: varchar("category").notNull(), // operational, capital, projects, hr
+  allocated: decimal("allocated", { precision: 15, scale: 2 }).notNull(),
+  spent: decimal("spent", { precision: 15, scale: 2 }).default('0'),
+  status: varchar("status").default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type Budget = typeof budgets.$inferSelect;
+
+// Financial Transactions
+export const transactions = pgTable("transactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  type: varchar("type").notNull(), // expense, revenue, adjustment
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  category: varchar("category").notNull(),
+  description: text("description"),
+  date: date("date").notNull(),
+  reference: varchar("reference"),
+  budgetId: varchar("budget_id").references(() => budgets.id),
+  approvedBy: varchar("approved_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type Transaction = typeof transactions.$inferSelect;
+
+// ============ ASSETS & LOGISTICS ============
+export const assets = pgTable("assets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  name: varchar("name").notNull(),
+  type: varchar("type").notNull(), // vehicle, equipment, machinery, building, other
+  serialNumber: varchar("serial_number"),
+  acquisitionDate: date("acquisition_date"),
+  acquisitionCost: decimal("acquisition_cost", { precision: 12, scale: 2 }),
+  currentValue: decimal("current_value", { precision: 12, scale: 2 }),
+  status: varchar("status").default("active"), // active, maintenance, retired
+  location: varchar("location"),
+  assignedTo: varchar("assigned_to").references(() => employees.id),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type Asset = typeof assets.$inferSelect;
+
+// Vehicle & Logistics Management (important for RailElectr)
+export const vehicles = pgTable("vehicles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").references(() => assets.id, { onDelete: 'cascade' }).notNull(),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  licensePlate: varchar("license_plate").unique().notNull(),
+  vehicleType: varchar("vehicle_type").notNull(), // truck, bus, locomotive, wagon, car
+  manufacturer: varchar("manufacturer"),
+  model: varchar("model"),
+  year: integer("year"),
+  engineNumber: varchar("engine_number"),
+  fuelType: varchar("fuel_type"), // diesel, electric, hybrid
+  capacity: integer("capacity"), // tonnage or passenger count
+  maintenanceSchedule: text("maintenance_schedule"),
+  lastServiceDate: date("last_service_date"),
+  nextServiceDate: date("next_service_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type Vehicle = typeof vehicles.$inferSelect;
+
+// ============ PARTNERS & SUPPLIERS ============
+export const partners = pgTable("partners", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  name: varchar("name").notNull(),
+  type: varchar("type").notNull(), // partner, supplier, subcontractor
+  email: varchar("email"),
+  phone: varchar("phone"),
+  address: text("address"),
+  city: varchar("city"),
+  country: varchar("country"),
+  taxId: varchar("tax_id"),
+  bankDetails: text("bank_details"),
+  contactPerson: varchar("contact_person"),
+  status: varchar("status").default("active"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertPartnerSchema = createInsertSchema(partners).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPartner = z.infer<typeof insertPartnerSchema>;
+export type Partner = typeof partners.$inferSelect;
+
+// ============ DOCUMENTS ============
 export const documents = pgTable("documents", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
   name: varchar("name").notNull(),
   description: text("description"),
-  type: varchar("type").notNull(), // contract, invoice, report, policy, other
+  type: varchar("type").notNull(), // contract, invoice, report, policy, regulation
   fileUrl: varchar("file_url").notNull(),
-  fileSize: integer("file_size"), // in bytes
+  fileSize: integer("file_size"),
   mimeType: varchar("mime_type"),
   version: integer("version").default(1),
   uploadedBy: varchar("uploaded_by").references(() => users.id),
   projectId: varchar("project_id").references(() => projects.id, { onDelete: 'cascade' }),
-  tags: text("tags"), // comma-separated
+  tags: text("tags"),
   isArchived: boolean("is_archived").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -267,7 +375,7 @@ export const insertDocumentSchema = createInsertSchema(documents).omit({
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
 export type Document = typeof documents.$inferSelect;
 
-// Leaves (Congés) table
+// ============ HR & PAYROLL ============
 export const leaves = pgTable("leaves", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   employeeId: varchar("employee_id").references(() => employees.id, { onDelete: 'cascade' }).notNull(),
@@ -296,20 +404,21 @@ export type Leave = typeof leaves.$inferSelect;
 // Salary Grids
 export const salaryGrids = pgTable("salary_grids", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(), // Level A, Level B, etc.
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  name: varchar("name").notNull(),
   minSalary: decimal("min_salary", { precision: 10, scale: 2 }).notNull(),
   maxSalary: decimal("max_salary", { precision: 10, scale: 2 }).notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export type SalaryGrid = typeof salaryGrids.$inferSelect;
 
-// Allowances (Indemnités)
+// Allowances
 export const allowances = pgTable("allowances", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(), // Housing, Meal, Transportation, etc.
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  name: varchar("name").notNull(), // Housing, Meal, Transportation
   type: varchar("type").notNull(), // fixed, percentage
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   description: text("description"),
@@ -318,153 +427,188 @@ export const allowances = pgTable("allowances", {
 
 export type Allowance = typeof allowances.$inferSelect;
 
-// Bonuses (Primes)
+// Bonuses
 export const bonuses = pgTable("bonuses", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   employeeId: varchar("employee_id").references(() => employees.id, { onDelete: 'cascade' }).notNull(),
-  name: varchar("name").notNull(), // Performance, Holiday, Annual, etc.
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  description: text("description"),
+  reason: varchar("reason"),
   date: date("date").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export type Bonus = typeof bonuses.$inferSelect;
 
-// Travel Expenses (Frais de déplacement)
-export const travelExpenses = pgTable("travel_expenses", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  missionOrderId: varchar("mission_order_id").references(() => missionOrders.id, { onDelete: 'cascade' }),
-  employeeId: varchar("employee_id").references(() => employees.id).notNull(),
-  type: varchar("type").notNull(), // transport, accommodation, meals, other
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  currency: varchar("currency").default("DZD"),
-  description: text("description"),
-  date: date("date").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export type TravelExpense = typeof travelExpenses.$inferSelect;
-
-// Payroll table (extended)
+// Payroll
 export const payroll = pgTable("payroll", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   employeeId: varchar("employee_id").references(() => employees.id, { onDelete: 'cascade' }).notNull(),
-  month: integer("month").notNull(), // 1-12
-  year: integer("year").notNull(),
-  country: varchar("country").default("Algeria"), // Support multiple countries
+  month: varchar("month").notNull(), // YYYY-MM
   baseSalary: decimal("base_salary", { precision: 10, scale: 2 }).notNull(),
-  allowances: decimal("allowances", { precision: 10, scale: 2 }).default("0"),
-  bonus: decimal("bonus", { precision: 10, scale: 2 }).default("0"),
-  travelExpenses: decimal("travel_expenses", { precision: 10, scale: 2 }).default("0"),
-  deductions: decimal("deductions", { precision: 10, scale: 2 }).default("0"),
-  socialContributions: decimal("social_contributions", { precision: 10, scale: 2 }).default("0"),
+  allowancesTotal: decimal("allowances_total", { precision: 10, scale: 2 }).default('0'),
+  bonusesTotal: decimal("bonuses_total", { precision: 10, scale: 2 }).default('0'),
+  deductionsTotal: decimal("deductions_total", { precision: 10, scale: 2 }).default('0'),
   netSalary: decimal("net_salary", { precision: 10, scale: 2 }).notNull(),
-  status: varchar("status").default("draft"), // draft, validated, paid
+  status: varchar("status").default("draft"), // draft, submitted, approved, paid
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const insertPayrollSchema = createInsertSchema(payroll).omit({
   id: true,
   createdAt: true,
-  updatedAt: true,
 });
 
 export type InsertPayroll = z.infer<typeof insertPayrollSchema>;
 export type Payroll = typeof payroll.$inferSelect;
 
-// Social Benefits (Bénéfices sociaux)
-export const socialBenefits = pgTable("social_benefits", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name").notNull(), // Health insurance, Retirement, Life insurance, etc.
-  description: text("description"),
-  costByPosition: jsonb("cost_by_position"), // JSON: {"position1": 100, "position2": 150}
-  applicableToAll: boolean("applicable_to_all").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export type SocialBenefit = typeof socialBenefits.$inferSelect;
-
-// Employee Donations (Dons pour les causes)
-export const employeeDonations = pgTable("employee_donations", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  employeeId: varchar("employee_id").references(() => employees.id, { onDelete: 'cascade' }).notNull(),
-  purpose: varchar("purpose").notNull(), // religious_holiday, employee_hardship, other
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  description: text("description"),
-  date: date("date").notNull(),
-  approvedBy: varchar("approved_by").references(() => users.id),
-  status: varchar("status").default("pending"), // pending, approved, rejected
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export type EmployeeDonation = typeof employeeDonations.$inferSelect;
-
-// Employee Loans (Prêts aux employés)
-export const employeeLoans = pgTable("employee_loans", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  employeeId: varchar("employee_id").references(() => employees.id, { onDelete: 'cascade' }).notNull(),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  purpose: varchar("purpose").notNull(),
-  approvalDate: date("approval_date"),
-  approvedBy: varchar("approved_by").references(() => users.id),
-  repaymentMonths: integer("repayment_months"),
-  monthlyRepayment: decimal("monthly_repayment", { precision: 10, scale: 2 }),
-  interestRate: decimal("interest_rate", { precision: 5, scale: 2 }).default("0"),
-  status: varchar("status").default("pending"), // pending, approved, active, completed
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export type EmployeeLoan = typeof employeeLoans.$inferSelect;
-
-// Service Customizations (Configuration par service)
-export const serviceCustomizations = pgTable("service_customizations", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  poleServiceId: varchar("pole_service_id").references(() => poleServices.id, { onDelete: 'cascade' }).notNull(),
-  key: varchar("key").notNull(), // Feature flags or settings
-  value: text("value"), // JSON or simple value
-  description: text("description"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export type ServiceCustomization = typeof serviceCustomizations.$inferSelect;
-
-// Formations table
+// ============ TRAINING & FORMATION ============
 export const formations = pgTable("formations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
   title: varchar("title").notNull(),
   description: text("description"),
-  category: varchar("category").notNull(),
-  startDate: date("start_date").notNull(),
-  endDate: date("end_date").notNull(),
-  instructorId: varchar("instructor_id").references(() => employees.id),
-  capacity: integer("capacity").default(30),
-  location: varchar("location"),
-  status: varchar("status").default("scheduled"), // scheduled, in_progress, completed, cancelled
+  provider: varchar("provider"),
+  startDate: date("start_date"),
+  endDate: date("end_date"),
+  maxParticipants: integer("max_participants"),
+  cost: decimal("cost", { precision: 10, scale: 2 }),
+  status: varchar("status").default("scheduled"), // scheduled, ongoing, completed
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const insertFormationSchema = createInsertSchema(formations).omit({
   id: true,
   createdAt: true,
-  updatedAt: true,
 });
 
 export type InsertFormation = z.infer<typeof insertFormationSchema>;
 export type Formation = typeof formations.$inferSelect;
 
-// Notifications table
+// Formation Enrollments
+export const formationEnrollments = pgTable("formation_enrollments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  formationId: varchar("formation_id").references(() => formations.id, { onDelete: 'cascade' }).notNull(),
+  employeeId: varchar("employee_id").references(() => employees.id, { onDelete: 'cascade' }).notNull(),
+  status: varchar("status").default("enrolled"), // enrolled, completed, dropped
+  score: integer("score"),
+  certificate: varchar("certificate"),
+  enrolledAt: timestamp("enrolled_at").defaultNow(),
+});
+
+export type FormationEnrollment = typeof formationEnrollments.$inferSelect;
+
+// ============ MISSION & TRAVEL ============
+export const missionOrders = pgTable("mission_orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  employeeId: varchar("employee_id").references(() => employees.id, { onDelete: 'cascade' }).notNull(),
+  destination: varchar("destination").notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
+  purpose: text("purpose"),
+  budget: decimal("budget", { precision: 10, scale: 2 }),
+  status: varchar("status").default("pending"),
+  approvedBy: varchar("approved_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertMissionOrderSchema = createInsertSchema(missionOrders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertMissionOrder = z.infer<typeof insertMissionOrderSchema>;
+export type MissionOrder = typeof missionOrders.$inferSelect;
+
+// Travel Expenses
+export const travels = pgTable("travels", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  employeeId: varchar("employee_id").references(() => employees.id, { onDelete: 'cascade' }).notNull(),
+  missionOrderId: varchar("mission_order_id").references(() => missionOrders.id),
+  type: varchar("type").notNull(), // transport, accommodation, meals, other
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  date: date("date"),
+  description: text("description"),
+  receipt: varchar("receipt"),
+  status: varchar("status").default("submitted"),
+  approvedBy: varchar("approved_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertTravelSchema = createInsertSchema(travels).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertTravel = z.infer<typeof insertTravelSchema>;
+export type Travel = typeof travels.$inferSelect;
+
+// ============ COMPLIANCE & REGULATIONS ============
+export const complianceItems = pgTable("compliance_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  type: varchar("type").notNull(), // regulation, policy, procedure, audit
+  ministry: varchar("ministry"), // travaux-publics, environnement, travail
+  dueDate: date("due_date"),
+  status: varchar("status").default("active"), // active, completed, expired
+  documentId: varchar("document_id").references(() => documents.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type ComplianceItem = typeof complianceItems.$inferSelect;
+
+// ============ COMMUNICATIONS ============
+export const conversations = pgTable("conversations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  participantIds: text("participant_ids"),
+  isGroup: boolean("is_group").default(false),
+  groupName: varchar("group_name"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertConversationSchema = createInsertSchema(conversations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type Conversation = typeof conversations.$inferSelect;
+
+// Messages
+export const messages = pgTable("messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: 'cascade' }).notNull(),
+  senderId: varchar("sender_id").references(() => users.id),
+  content: text("content"),
+  attachments: text("attachments"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertMessageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type Message = typeof messages.$inferSelect;
+
+// ============ NOTIFICATIONS ============
 export const notifications = pgTable("notifications", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  type: varchar("type").notNull(), // email, system, alert
   title: varchar("title").notNull(),
-  message: text("message").notNull(),
-  type: varchar("type").default("info"), // info, warning, error, success
+  content: text("content"),
   read: boolean("read").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -477,164 +621,19 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type Notification = typeof notifications.$inferSelect;
 
-// MESSAGING - Conversations table
-export const conversations = pgTable("conversations", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: varchar("name"),
-  type: varchar("type").default("direct"), // direct, group
-  createdBy: varchar("created_by").references(() => users.id).notNull(),
-  lastMessageAt: timestamp("last_message_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const insertConversationSchema = createInsertSchema(conversations).omit({
-  id: true,
-  createdAt: true,
-  lastMessageAt: true,
-});
-
-export type InsertConversation = z.infer<typeof insertConversationSchema>;
-export type Conversation = typeof conversations.$inferSelect;
-
-// Messages table
-export const messages = pgTable("messages", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: 'cascade' }).notNull(),
-  senderId: varchar("sender_id").references(() => users.id).notNull(),
-  content: text("content").notNull(),
-  attachments: text("attachments"), // JSON array of file URLs
-  isRead: boolean("is_read").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const insertMessageSchema = createInsertSchema(messages).omit({
-  id: true,
-  createdAt: true,
-  isRead: true,
-});
-
-export type InsertMessage = z.infer<typeof insertMessageSchema>;
-export type Message = typeof messages.$inferSelect;
-
-// Conversation Participants
-export const conversationParticipants = pgTable("conversation_participants", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  conversationId: varchar("conversation_id").references(() => conversations.id, { onDelete: 'cascade' }).notNull(),
-  userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  joinedAt: timestamp("joined_at").defaultNow(),
-});
-
-// ORDRES DE MISSION - Mission Orders table
-export const missionOrders = pgTable("mission_orders", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  orderNumber: varchar("order_number").unique().notNull(),
-  employeeId: varchar("employee_id").references(() => employees.id).notNull(),
-  projectId: varchar("project_id").references(() => projects.id),
-  destination: varchar("destination").notNull(),
-  purpose: text("purpose").notNull(),
-  startDate: date("start_date").notNull(),
-  endDate: date("end_date").notNull(),
-  duration: integer("duration").notNull(), // in days
-  transportMode: varchar("transport_mode"), // vehicle, flight, train, other
-  estimatedBudget: decimal("estimated_budget", { precision: 10, scale: 2 }),
-  status: varchar("status").default("draft"), // draft, pending_approval, approved, in_progress, completed, cancelled
-  approvedBy: varchar("approved_by").references(() => users.id),
-  approvedAt: timestamp("approved_at"),
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const insertMissionOrderSchema = createInsertSchema(missionOrders).omit({
-  id: true,
-  orderNumber: true,
-  createdAt: true,
-  updatedAt: true,
-  approvedAt: true,
-});
-
-export type InsertMissionOrder = z.infer<typeof insertMissionOrderSchema>;
-export type MissionOrder = typeof missionOrders.$inferSelect;
-
-// DÉPLACEMENTS - Travel/Displacement Requests table
-export const travels = pgTable("travels", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  missionOrderId: varchar("mission_order_id").references(() => missionOrders.id, { onDelete: 'cascade' }),
-  employeeId: varchar("employee_id").references(() => employees.id).notNull(),
-  departureDate: date("departure_date").notNull(),
-  returnDate: date("return_date").notNull(),
-  origin: varchar("origin").notNull(),
-  destination: varchar("destination").notNull(),
-  transportMode: varchar("transport_mode").notNull(), // car, flight, train, bus
-  distance: integer("distance"), // in km
-  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 2 }),
-  actualCost: decimal("actual_cost", { precision: 10, scale: 2 }),
-  status: varchar("status").default("pending"), // pending, approved, in_transit, completed, cancelled
-  approvedBy: varchar("approved_by").references(() => users.id),
-  approvedAt: timestamp("approved_at"),
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const insertTravelSchema = createInsertSchema(travels).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  approvedAt: true,
-});
-
-export type InsertTravel = z.infer<typeof insertTravelSchema>;
-export type Travel = typeof travels.$inferSelect;
-
-// Audit Logs table
-export const auditLogs = pgTable("audit_logs", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id),
-  action: varchar("action").notNull(),
-  entityType: varchar("entity_type").notNull(),
-  entityId: varchar("entity_id").notNull(),
-  changes: jsonb("changes"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export type AuditLog = typeof auditLogs.$inferSelect;
-
-// ERP Communications - Direct messages from admins to system
+// ============ ERP FEEDBACK & IMPROVEMENTS ============
 export const erpCommunications = pgTable("erp_communications", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id).notNull(),
-  subject: varchar("subject").notNull(),
-  message: text("message").notNull(),
-  type: varchar("type").notNull(), // feedback, modification, bug, feature, urgent
-  response: text("response"),
-  respondedAt: timestamp("responded_at"),
-  status: varchar("status").default("new"), // new, read, responded, closed
+  userId: varchar("user_id").references(() => users.id),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id),
+  type: varchar("type").notNull(), // feedback, bug_report, feature_request, improvement
+  title: varchar("title").notNull(),
+  description: text("description"),
+  priority: varchar("priority"), // low, medium, high, critical
+  status: varchar("status").default("open"),
+  attachments: text("attachments"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const insertERPCommunicationSchema = createInsertSchema(erpCommunications).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  response: true,
-  respondedAt: true,
-  status: true,
-});
-
-export type InsertERPCommunication = z.infer<typeof insertERPCommunicationSchema>;
-export type ERPCommunication = typeof erpCommunications.$inferSelect;
-
-// Company Settings table
-export const companySettings = pgTable("company_settings", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  key: varchar("key").notNull().unique(),
-  value: text("value").notNull(),
-  description: varchar("description"),
-  category: varchar("category"), // general, address, contact, branding
-  updatedBy: varchar("updated_by").references(() => users.id),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export type CompanySetting = typeof companySettings.$inferSelect;
+export type ErpCommunication = typeof erpCommunications.$inferSelect;

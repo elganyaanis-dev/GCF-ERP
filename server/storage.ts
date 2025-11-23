@@ -7,10 +7,8 @@ import {
   payroll,
   formations,
   notifications,
-  auditLogs,
   messages,
   conversations,
-  conversationParticipants,
   missionOrders,
   travels,
   directions,
@@ -24,12 +22,14 @@ import {
   salaryGrids,
   allowances,
   bonuses,
-  travelExpenses,
-  socialBenefits,
-  employeeDonations,
-  employeeLoans,
-  serviceCustomizations,
   companySettings,
+  subsidiaries,
+  assets,
+  vehicles,
+  budgets,
+  transactions,
+  tasks,
+  complianceItems,
   type CompanySetting,
   type User,
   type UpsertUser,
@@ -652,26 +652,106 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // Subsidiaries (GCF Group)
+  async getSubsidiaries(): Promise<any[]> {
+    try {
+      return await db.select().from(subsidiaries);
+    } catch (error) {
+      console.error("Error getting subsidiaries:", error);
+      return [];
+    }
+  }
+
+  async getSubsidiaryById(id: string): Promise<any> {
+    try {
+      const [sub] = await db.select().from(subsidiaries).where(eq(subsidiaries.id, id));
+      return sub;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  // Poles by subsidiary
+  async getPolesBySubsidiary(subsidiaryId: string): Promise<any[]> {
+    try {
+      return await db.select().from(poles).where(eq(poles.subsidiaryId, subsidiaryId));
+    } catch (error) {
+      return [];
+    }
+  }
+
+  // Assets management
+  async getAssets(subsidiaryId?: string): Promise<any[]> {
+    try {
+      if (subsidiaryId) {
+        return await db.select().from(assets).where(eq(assets.subsidiaryId, subsidiaryId));
+      }
+      return await db.select().from(assets);
+    } catch (error) {
+      return [];
+    }
+  }
+
+  async getVehicles(subsidiaryId?: string): Promise<any[]> {
+    try {
+      if (subsidiaryId) {
+        return await db.select().from(vehicles).where(eq(vehicles.subsidiaryId, subsidiaryId));
+      }
+      return await db.select().from(vehicles);
+    } catch (error) {
+      return [];
+    }
+  }
+
+  // Budget management
+  async getBudgets(subsidiaryId: string): Promise<any[]> {
+    try {
+      return await db.select().from(budgets).where(eq(budgets.subsidiaryId, subsidiaryId));
+    } catch (error) {
+      return [];
+    }
+  }
+
+  // Compliance items
+  async getComplianceItems(subsidiaryId: string): Promise<any[]> {
+    try {
+      return await db.select().from(complianceItems).where(eq(complianceItems.subsidiaryId, subsidiaryId));
+    } catch (error) {
+      return [];
+    }
+  }
+
   // Dashboard stats
-  async getDashboardStats(): Promise<any> {
-    const totalEmployees = await db.select().from(employees).where(eq(employees.status, 'active'));
-    const activeProjects = await db.select().from(projects).where(eq(projects.status, 'in_progress'));
-    const totalDocuments = await db.select().from(documents);
-    const pendingLeaves = await db.select().from(leaves).where(eq(leaves.status, 'pending'));
+  async getDashboardStats(subsidiaryId?: string): Promise<any> {
+    try {
+      let employeesQuery = db.select().from(employees);
+      let projectsQuery = db.select().from(projects);
+      
+      if (subsidiaryId) {
+        employeesQuery = employeesQuery.where(eq(employees.subsidiaryId, subsidiaryId));
+        projectsQuery = projectsQuery.where(eq(projects.subsidiaryId, subsidiaryId));
+      }
+      
+      const activeEmployees = await employeesQuery.where(eq(employees.status, 'active'));
+      const activeProjects = await projectsQuery.where(eq(projects.status, 'in_progress'));
+      const totalDocuments = await db.select().from(documents);
+      const pendingLeaves = await db.select().from(leaves).where(eq(leaves.status, 'pending'));
 
-    const recentProjects = await db
-      .select()
-      .from(projects)
-      .orderBy(desc(projects.createdAt))
-      .limit(5);
+      const recentProjects = await projectsQuery
+        .orderBy(desc(projects.createdAt))
+        .limit(5);
 
-    return {
-      totalEmployees: totalEmployees.length,
-      activeProjects: activeProjects.length,
-      totalDocuments: totalDocuments.length,
-      pendingLeaves: pendingLeaves.length,
-      recentProjects,
-    };
+      return {
+        totalEmployees: activeEmployees.length,
+        activeProjects: activeProjects.length,
+        totalDocuments: totalDocuments.length,
+        pendingLeaves: pendingLeaves.length,
+        recentProjects,
+      };
+    } catch (error) {
+      console.error("Error in getDashboardStats:", error);
+      return { totalEmployees: 0, activeProjects: 0, totalDocuments: 0, pendingLeaves: 0 };
+    }
   }
 }
 

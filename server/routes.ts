@@ -836,6 +836,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ ADMIN CONSOLE ROUTES ============
+  let adminMessages: any[] = [];
+
+  app.get('/api/admin/communications', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user || !user.isSupremeAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      res.json(adminMessages);
+    } catch (error) {
+      console.error("Error fetching admin communications:", error);
+      res.status(500).json({ message: "Failed to fetch communications" });
+    }
+  });
+
+  app.post('/api/admin/communications', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      if (!user || !user.isSupremeAdmin) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { content, sender, type } = req.body;
+      if (!content || !sender) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      const message = {
+        id: Math.random().toString(36).substring(7),
+        sender,
+        content,
+        timestamp: new Date().toISOString(),
+        type: type || "admin",
+      };
+
+      adminMessages.push(message);
+      res.status(201).json(message);
+    } catch (error) {
+      console.error("Error creating admin communication:", error);
+      res.status(500).json({ message: "Failed to create communication" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

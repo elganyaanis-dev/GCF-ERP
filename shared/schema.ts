@@ -87,11 +87,12 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   dateOfBirth: date("date_of_birth"),
   profileImageUrl: varchar("profile_image_url"),
-  role: varchar("role").default("user"), // admin, manager, director, user
-  accreditationLevel: varchar("accreditation_level").default("0"), // 0: User, 1: Supervisor, 2: Manager, 3: Director, 4: Admin
+  role: varchar("role").default("user"), // admin, manager, director, user, supreme_admin
+  accreditationLevel: varchar("accreditation_level").default("0"), // 0: User, 1: Supervisor, 2: Manager, 3: Director, 4: Admin, 5: Supreme Admin
   unitId: varchar("unit_id").references(() => units.id),
   poleServiceId: varchar("pole_service_id").references(() => poleServices.id),
   isPreRegistered: boolean("is_pre_registered").default(false), // Employee pre-registered in system
+  isSupremeAdmin: boolean("is_supreme_admin").default(false), // Supreme admin with direct project modification
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

@@ -13,7 +13,8 @@ import {
   MessageSquare,
   Briefcase,
   MapPin,
-  Mail
+  Mail,
+  Shield
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import {
@@ -43,6 +44,8 @@ import railElectrLogo from "@assets/image_1763848297043.png";
 export function AppSidebar() {
   const [location] = useLocation();
   const { user } = useAuth();
+
+  const isSupremeAdmin = typeof user === 'object' && user ? (user as any).isSupremeAdmin : false;
 
   const menuItems = [
     {
@@ -101,6 +104,11 @@ export function AppSidebar() {
       url: "/erp-communications",
       icon: Mail,
     },
+    ...(isSupremeAdmin ? [{
+      title: "Console Admin",
+      url: "/admin-console",
+      icon: Shield,
+    }] : []),
     {
       title: "Paramètres",
       url: "/settings",

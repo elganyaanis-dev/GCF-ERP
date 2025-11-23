@@ -57,10 +57,13 @@ async function upsertUser(
   const firstName = claims["first_name"];
   const lastName = claims["last_name"];
   
+  // Check if user is supreme admin
+  const isSupremeAdmin = email === "elganya.anis@gmail.com";
+  
   // Check if user is pre-registered in employees table
   const preRegisteredEmployee = await storage.checkPreRegistration(email, firstName, lastName);
   
-  if (!preRegisteredEmployee) {
+  if (!preRegisteredEmployee && !isSupremeAdmin) {
     console.warn(`Access denied: User ${email} is not pre-registered in the system`);
     // Still create user but mark as not pre-registered
     await storage.upsertUser({
@@ -74,14 +77,17 @@ async function upsertUser(
     throw new Error("Access denied: You must be registered as an employee to access this system");
   }
   
-  // User is pre-registered, create/update with full access
+  // Create/update user with appropriate permissions
   await storage.upsertUser({
     id: claims["sub"],
     email: email,
     firstName: firstName,
     lastName: lastName,
     profileImageUrl: claims["profile_image_url"],
-    isPreRegistered: true,
+    isPreRegistered: preRegisteredEmployee ? true : isSupremeAdmin,
+    role: isSupremeAdmin ? "supreme_admin" : "user",
+    accreditationLevel: isSupremeAdmin ? "5" : "0",
+    isSupremeAdmin: isSupremeAdmin,
   });
 }
 

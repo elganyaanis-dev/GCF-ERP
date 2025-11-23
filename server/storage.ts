@@ -278,7 +278,12 @@ export class DatabaseStorage implements IStorage {
 
   // Formation operations
   async getFormations(): Promise<Formation[]> {
-    return await db.select().from(formations).orderBy(desc(formations.startDate));
+    try {
+      return await db.select().from(formations).orderBy(desc(formations.startDate));
+    } catch (error) {
+      console.error("Error fetching formations:", error);
+      return [];
+    }
   }
 
   async createFormation(formation: InsertFormation): Promise<Formation> {
@@ -357,7 +362,12 @@ export class DatabaseStorage implements IStorage {
 
   // Mission Orders operations
   async getMissionOrders(): Promise<MissionOrder[]> {
-    return await db.select().from(missionOrders).orderBy(desc(missionOrders.createdAt));
+    try {
+      return await db.select().from(missionOrders).orderBy(desc(missionOrders.createdAt));
+    } catch (error) {
+      console.error("Error fetching mission orders:", error);
+      return [];
+    }
   }
 
   async createMissionOrder(order: InsertMissionOrder): Promise<MissionOrder> {
@@ -380,7 +390,12 @@ export class DatabaseStorage implements IStorage {
 
   // Travel operations
   async getTravels(): Promise<Travel[]> {
-    return await db.select().from(travels).orderBy(desc(travels.createdAt));
+    try {
+      return await db.select().from(travels).orderBy(desc(travels.createdAt));
+    } catch (error) {
+      console.error("Error fetching travels:", error);
+      return [];
+    }
   }
 
   async createTravel(travel: InsertTravel): Promise<Travel> {

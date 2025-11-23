@@ -1,12 +1,14 @@
 import { ERPLayout } from "@/components/erp-layout";
 import { Card } from "@/components/ui/card";
-import { Settings, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ERPSettings() {
   const menuItems = [
-    { label: "Dashboard", icon: Settings, path: "/dashboard" },
-    { label: "Paramètres", icon: Settings, path: "/settings" },
+    { label: "Tableau de bord", path: "/dashboard" },
+    { label: "Employés", path: "/employees" },
+    { label: "Projets", path: "/projects" },
+    { label: "Documents", path: "/documents" },
   ];
 
   return (

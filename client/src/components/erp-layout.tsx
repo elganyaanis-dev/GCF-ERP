@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 interface MenuItem {
   label: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
   path: string;
 }
 
@@ -69,7 +69,7 @@ export function ERPLayout({ children, menuItems, title }: ERPLayoutProps) {
                           className="flex items-center gap-2 w-full cursor-pointer"
                           data-testid={`button-nav-${item.label.toLowerCase()}`}
                         >
-                          <item.icon className="h-4 w-4" />
+                          {item.icon && <item.icon className="h-4 w-4" />}
                           <span>{item.label}</span>
                         </button>
                       </SidebarMenuButton>

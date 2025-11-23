@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ERPLayout } from "@/components/erp-layout";
 import { Card } from "@/components/ui/card";
-import { Layers, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ERPOrganization() {
@@ -10,8 +10,10 @@ export default function ERPOrganization() {
   });
 
   const menuItems = [
-    { label: "Dashboard", icon: Layers, path: "/dashboard" },
-    { label: "Organisation", icon: Layers, path: "/organization" },
+    { label: "Tableau de bord", path: "/dashboard" },
+    { label: "Employés", path: "/employees" },
+    { label: "Projets", path: "/projects" },
+    { label: "Documents", path: "/documents" },
   ];
 
   if (isLoading) {

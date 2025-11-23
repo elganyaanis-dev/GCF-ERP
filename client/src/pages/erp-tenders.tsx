@@ -1,12 +1,13 @@
 import { ERPLayout } from "@/components/erp-layout";
 import { Card } from "@/components/ui/card";
-import { Building2 } from "lucide-react";
 import { TENDER_PLATFORMS } from "@/config/erp";
 
 export default function ERPTenders() {
   const menuItems = [
-    { label: "Dashboard", icon: Building2, path: "/dashboard" },
-    { label: "Marchés", icon: Building2, path: "/tenders" },
+    { label: "Tableau de bord", path: "/dashboard" },
+    { label: "Employés", path: "/employees" },
+    { label: "Projets", path: "/projects" },
+    { label: "Documents", path: "/documents" },
   ];
 
   return (

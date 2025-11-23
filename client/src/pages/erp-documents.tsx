@@ -10,8 +10,10 @@ export default function ERPDocuments() {
   });
 
   const menuItems = [
-    { label: "Dashboard", icon: FileText, path: "/dashboard" },
-    { label: "Documents", icon: FileText, path: "/documents" },
+    { label: "Tableau de bord", path: "/dashboard" },
+    { label: "Employés", path: "/employees" },
+    { label: "Projets", path: "/projects" },
+    { label: "Documents", path: "/documents" },
   ];
 
   if (isLoading) {
@@ -22,7 +24,10 @@ export default function ERPDocuments() {
     <ERPLayout menuItems={menuItems} title="Gestion des Documents">
       <div className="p-6 space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Documents</h2>
+          <div>
+            <h2 className="text-2xl font-bold">Documents</h2>
+            <p className="text-sm text-muted-foreground">Gestion, versioning et archivage</p>
+          </div>
           <Button data-testid="button-add-document">
             <Plus className="w-4 h-4 mr-2" /> Créer
           </Button>
@@ -31,13 +36,16 @@ export default function ERPDocuments() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {documents?.length ? (
             documents.map((doc: any) => (
-              <Card key={doc.id} className="p-4">
-                <p className="font-semibold">{doc.title}</p>
+              <Card key={doc.id} className="p-4 hover-elevate" data-testid={`card-document-${doc.id}`}>
+                <div className="flex items-start gap-2 mb-2">
+                  <FileText className="h-4 w-4 mt-1 flex-shrink-0" />
+                  <p className="font-semibold">{doc.title}</p>
+                </div>
                 <p className="text-sm text-muted-foreground">{doc.type}</p>
               </Card>
             ))
           ) : (
-            <p className="text-muted-foreground">Aucun document trouvé</p>
+            <p className="text-muted-foreground text-center py-8 col-span-3">Aucun document trouvé</p>
           )}
         </div>
       </div>

@@ -23,7 +23,7 @@ export default function ERPProjects() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              Gestion de projets avec support Gantt, suivi budgétaire, allocation de ressources et supervision
+              Gestion avec support Gantt, suivi budgétaire, allocation ressources
             </p>
             <div className="flex gap-3">
               <Button>Créer un projet</Button>
@@ -32,7 +32,6 @@ export default function ERPProjects() {
           </CardContent>
         </Card>
 
-        {/* Project Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-3">

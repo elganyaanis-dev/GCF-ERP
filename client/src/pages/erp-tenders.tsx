@@ -2,7 +2,7 @@ import { Globe, BarChart3, ExternalLink, FileText, Users } from "lucide-react";
 import { ERPLayout } from "@/components/erp-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TENDER_PLATFORMS } from "@/App";
+import { TENDER_PLATFORMS } from "@/config/erp";
 
 export default function ERPTenders() {
   const menuItems = [
@@ -44,7 +44,6 @@ export default function ERPTenders() {
           </CardContent>
         </Card>
 
-        {/* Tenders Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardHeader className="pb-3">

@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { ERP_CONFIG, TENDER_PLATFORMS } from "@/App";
+import { ERP_CONFIG, TENDER_PLATFORMS } from "@/config/erp";
 import { useLocation } from "wouter";
 import { LucideIcon } from "lucide-react";
 
@@ -18,20 +18,19 @@ interface ERPLayoutProps {
 
 export function ERPLayout({ children, menuItems, title }: ERPLayoutProps) {
   const [, navigate] = useLocation();
-  const selectedERP = sessionStorage.getItem("selected_erp") || "gcf";
-  const erpConfig = ERP_CONFIG[selectedERP as keyof typeof ERP_CONFIG];
+  const selectedERP = (sessionStorage.getItem("selected_erp") || "gcf") as keyof typeof ERP_CONFIG;
+  const erpConfig = ERP_CONFIG[selectedERP];
 
   const style = {
     "--sidebar-width": "16rem",
     "--sidebar-width-icon": "3rem",
-  };
+  } as React.CSSProperties;
 
   return (
-    <SidebarProvider style={style as React.CSSProperties}>
+    <SidebarProvider style={style}>
       <div className="flex h-screen w-full bg-background">
         <Sidebar className="border-r">
           <SidebarContent>
-            {/* ERP Header */}
             <div className="p-4 mb-4 border-b">
               <h2 className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
                 {erpConfig?.name}
@@ -41,7 +40,6 @@ export function ERPLayout({ children, menuItems, title }: ERPLayoutProps) {
               </p>
             </div>
 
-            {/* Navigation */}
             <SidebarGroup>
               <SidebarGroupLabel>Navigation</SidebarGroupLabel>
               <SidebarGroupContent>
@@ -63,7 +61,6 @@ export function ERPLayout({ children, menuItems, title }: ERPLayoutProps) {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {/* Tender Platforms */}
             <SidebarGroup className="mt-auto">
               <SidebarGroupLabel className="text-xs">Marchés Publics</SidebarGroupLabel>
               <SidebarGroupContent>
@@ -85,7 +82,6 @@ export function ERPLayout({ children, menuItems, title }: ERPLayoutProps) {
           </SidebarContent>
         </Sidebar>
 
-        {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <header className="flex items-center justify-between px-6 py-4 border-b bg-card/50 backdrop-blur-sm sticky top-0 z-40">
             <div className="flex items-center gap-4">

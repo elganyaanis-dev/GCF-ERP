@@ -3,9 +3,12 @@ import { ERPLayout } from "@/components/erp-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { ERP_CONFIG } from "@/config/erp";
 
 export default function ERPSettings() {
   const { logout } = useAuth();
+  const selectedERP = (sessionStorage.getItem("selected_erp") || "gcf") as keyof typeof ERP_CONFIG;
+  const erpConfig = ERP_CONFIG[selectedERP];
 
   const menuItems = [
     { label: "Tableau de bord", icon: BarChart3, path: "/dashboard" },
@@ -23,7 +26,6 @@ export default function ERPSettings() {
   return (
     <ERPLayout menuItems={menuItems} title="Paramètres & Configuration">
       <div className="p-8 space-y-6">
-        {/* Information Card */}
         <Card className="hover-elevate transition-all">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -34,9 +36,7 @@ export default function ERPSettings() {
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-muted-foreground">Identifiant</p>
-                <p className="font-semibold">
-                  {sessionStorage.getItem("selected_erp")?.toUpperCase() || "GCF"}
-                </p>
+                <p className="font-semibold">{erpConfig?.name}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Type d'accès</p>
@@ -46,7 +46,6 @@ export default function ERPSettings() {
           </CardContent>
         </Card>
 
-        {/* Configuration Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="hover-elevate transition-all">
             <CardHeader>
@@ -54,7 +53,7 @@ export default function ERPSettings() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                Configuration des grilles salariales et allocations
+                Configuration des grilles salariales
               </p>
               <Button variant="outline" className="w-full">
                 Configurer
@@ -82,7 +81,7 @@ export default function ERPSettings() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                Paramètres légaux et réglementaires algériens
+                Paramètres légaux algériens
               </p>
               <Button variant="outline" className="w-full">
                 Configurer
@@ -105,7 +104,6 @@ export default function ERPSettings() {
           </Card>
         </div>
 
-        {/* Logout Section */}
         <Card className="border-red-200 dark:border-red-900">
           <CardHeader>
             <CardTitle className="text-red-600 dark:text-red-400">Déconnexion</CardTitle>

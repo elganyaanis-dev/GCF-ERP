@@ -23,7 +23,7 @@ export default function ERPPayroll() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              Conformité légale algérienne: CNSS 8%, Assurance Chômage 0.5%, IRG progressif, allocations et retenues automatiques
+              CNSS 8%, Assurance Chômage, IRG progressif, allocations automatiques
             </p>
             <div className="flex gap-3">
               <Button>Générer Bulletins</Button>
@@ -32,7 +32,6 @@ export default function ERPPayroll() {
           </CardContent>
         </Card>
 
-        {/* Payroll Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-3">

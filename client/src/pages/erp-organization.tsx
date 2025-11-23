@@ -23,7 +23,7 @@ export default function ERPOrganization() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              Structure organisationnelle complète: directions, pôles, services, unités avec hiérarchie et permissions
+              Directions, pôles, services, unités avec hiérarchie
             </p>
             <div className="flex gap-3">
               <Button>Ajouter Direction</Button>
@@ -32,7 +32,6 @@ export default function ERPOrganization() {
           </CardContent>
         </Card>
 
-        {/* Organization Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-3">

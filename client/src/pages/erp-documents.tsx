@@ -22,7 +22,7 @@ export default function ERPDocuments() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              Éditeur texte avancé, support Excel, versioning automatique, archivage et conformité légale
+              Éditeur texte, support Excel, versioning, archivage
             </p>
             <div className="flex gap-3">
               <Button className="flex items-center gap-2">
@@ -35,7 +35,6 @@ export default function ERPDocuments() {
           </CardContent>
         </Card>
 
-        {/* Document Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardHeader className="pb-3">
@@ -47,7 +46,7 @@ export default function ERPDocuments() {
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Versions Archivées</CardTitle>
+              <CardTitle className="text-sm">Versions</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">--</div>
@@ -55,7 +54,7 @@ export default function ERPDocuments() {
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Stockage Utilisé</CardTitle>
+              <CardTitle className="text-sm">Stockage</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">-- MB</div>

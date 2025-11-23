@@ -23,16 +23,15 @@ export default function ERPEmployees() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              Gestion complète des employés avec profils, contrats, allocations et conformité algérienne
+              Gestion complète avec profils, contrats, allocations et conformité algérienne
             </p>
             <div className="flex gap-3">
               <Button>Ajouter un employé</Button>
-              <Button variant="outline">Importer depuis Excel</Button>
+              <Button variant="outline">Importer Excel</Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardHeader className="pb-3">

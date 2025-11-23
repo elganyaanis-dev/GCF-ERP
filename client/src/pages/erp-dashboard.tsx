@@ -62,7 +62,6 @@ export default function ERPDashboard() {
                 </CardHeader>
                 <CardContent>
                   <Skeleton className="h-8 w-16 mb-2" />
-                  <Skeleton className="h-3 w-12" />
                 </CardContent>
               </Card>
             ))}
@@ -75,10 +74,9 @@ export default function ERPDashboard() {
   return (
     <ERPLayout menuItems={menuItems} title="Tableau de Bord">
       <div className="p-8 space-y-8">
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {statCards.map((stat, index) => (
-            <Card key={index} className="hover-elevate transition-all" data-testid={`card-stat-${index}`}>
+            <Card key={index} className="hover-elevate transition-all">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 gap-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   {stat.title}
@@ -88,9 +86,7 @@ export default function ERPDashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold" data-testid={`stat-value-${index}`}>
-                  {stat.value}
-                </div>
+                <div className="text-2xl font-bold">{stat.value}</div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Données en temps réel
                 </p>
@@ -99,16 +95,15 @@ export default function ERPDashboard() {
           ))}
         </div>
 
-        {/* Welcome Section */}
         <Card className="bg-gradient-to-br from-card to-card/50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" /> Bienvenue
+              <BarChart3 className="h-5 w-5" /> Système V5 Opérationnel
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              Système ERP V5 entièrement sécurisé avec architecture multi-tenant, RBAC avancé, et isolation complète des données par filiale.
+              Système ERP V5 multi-tenant avec architecture sécurisée, RBAC avancé, et isolation complète des données par filiale.
             </p>
           </CardContent>
         </Card>

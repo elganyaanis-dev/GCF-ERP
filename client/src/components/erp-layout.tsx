@@ -29,8 +29,8 @@ export function ERPLayout({ children, menuItems, title }: ERPLayoutProps) {
   const isSupremeAdmin = userEmail === "elganya.anis@gmail.com";
 
   const handleChangeERP = () => {
-    sessionStorage.removeItem("selected_erp");
-    navigate("/");
+    sessionStorage.clear();
+    window.location.href = "/";
   };
 
   const handleLogout = () => {

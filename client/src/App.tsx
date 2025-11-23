@@ -33,6 +33,33 @@ function Router() {
     typeof window !== "undefined" ? sessionStorage.getItem("selected_erp") : null
   );
 
+  // Listen to sessionStorage changes (for when user clicks "Change ERP")
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = sessionStorage.getItem("selected_erp");
+      setSelectedERP(stored);
+      if (!stored) {
+        navigate("/");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Also check periodically in case storage changes in same tab
+    const interval = setInterval(() => {
+      const stored = sessionStorage.getItem("selected_erp");
+      if (!stored && selectedERP) {
+        setSelectedERP(null);
+        navigate("/");
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [navigate, selectedERP]);
+
   // Auto-navigate to dashboard when ERP is selected
   useEffect(() => {
     const validPaths = ["/dashboard", "/employees", "/projects", "/documents", "/payroll", "/organization", 
@@ -69,6 +96,7 @@ function Router() {
 
   return (
     <Switch>
+      <Route path="/" component={() => <ERPSelector onSelectERP={(erp: string) => { sessionStorage.setItem("selected_erp", erp); setSelectedERP(erp); }} />} />
       <Route path="/dashboard" component={ERPDashboard} />
       <Route path="/employees" component={ERPEmployees} />
       <Route path="/projects" component={ERPProjects} />

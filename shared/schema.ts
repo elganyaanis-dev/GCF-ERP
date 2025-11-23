@@ -637,3 +637,78 @@ export const erpCommunications = pgTable("erp_communications", {
 });
 
 export type ErpCommunication = typeof erpCommunications.$inferSelect;
+
+// ============ TIMESHEETS ============
+export const timesheets = pgTable("timesheets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  employeeId: varchar("employee_id").references(() => employees.id, { onDelete: 'cascade' }).notNull(),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  date: date("date").notNull(),
+  hoursWorked: decimal("hours_worked", { precision: 5, scale: 2 }).notNull(),
+  projectId: varchar("project_id").references(() => projects.id),
+  taskDescription: text("task_description"),
+  status: varchar("status").default("submitted"), // submitted, approved, rejected
+  approvedBy: varchar("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type Timesheet = typeof timesheets.$inferSelect;
+
+// ============ INVENTORY & STOCK ============
+export const inventoryItems = pgTable("inventory_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  code: varchar("code").unique().notNull(),
+  name: varchar("name").notNull(),
+  category: varchar("category").notNull(),
+  description: text("description"),
+  unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
+  quantityInStock: integer("quantity_in_stock").default(0),
+  minThreshold: integer("min_threshold").default(10),
+  supplier: varchar("supplier"),
+  location: varchar("location"),
+  lastRestockDate: date("last_restock_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type InventoryItem = typeof inventoryItems.$inferSelect;
+
+// ============ CONTRACTS ============
+export const contracts = pgTable("contracts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  contractNumber: varchar("contract_number").unique().notNull(),
+  type: varchar("type").notNull(), // employment, service, supply, lease
+  name: varchar("name").notNull(),
+  description: text("description"),
+  vendor: varchar("vendor"),
+  value: decimal("value", { precision: 15, scale: 2 }),
+  currency: varchar("currency").default("DZD"),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date"),
+  status: varchar("status").default("active"), // active, expired, terminated, pending
+  documentId: varchar("document_id").references(() => documents.id),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type Contract = typeof contracts.$inferSelect;
+
+// ============ AUDIT TRAIL ============
+export const auditLogs = pgTable("audit_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  subsidiaryId: varchar("subsidiary_id").references(() => subsidiaries.id, { onDelete: 'cascade' }).notNull(),
+  action: varchar("action").notNull(), // create, update, delete, approve, reject
+  entityType: varchar("entity_type").notNull(), // employee, project, document, etc
+  entityId: varchar("entity_id"),
+  oldValue: text("old_value"),
+  newValue: text("new_value"),
+  description: text("description"),
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type AuditLog = typeof auditLogs.$inferSelect;

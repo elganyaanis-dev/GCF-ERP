@@ -30,6 +30,10 @@ import {
   transactions,
   tasks,
   complianceItems,
+  timesheets,
+  inventoryItems,
+  contracts,
+  auditLogs,
   type CompanySetting,
   type User,
   type UpsertUser,
@@ -778,6 +782,89 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error in getDashboardStats:", error);
       return { totalEmployees: 0, activeProjects: 0, totalDocuments: 0, pendingLeaves: 0, recentProjects: [] };
+    }
+  }
+
+  // Timesheet operations
+  async getTimesheets(): Promise<any[]> {
+    try {
+      return await db.select().from(timesheets).orderBy(desc(timesheets.date));
+    } catch (error) {
+      console.error("Error fetching timesheets:", error);
+      return [];
+    }
+  }
+
+  async createTimesheet(data: any): Promise<any> {
+    try {
+      const [ts] = await db.insert(timesheets).values(data).returning();
+      return ts;
+    } catch (error) {
+      console.error("Error creating timesheet:", error);
+      throw error;
+    }
+  }
+
+  // Inventory operations
+  async getInventory(): Promise<any[]> {
+    try {
+      return await db.select().from(inventoryItems).orderBy(inventoryItems.name);
+    } catch (error) {
+      console.error("Error fetching inventory:", error);
+      return [];
+    }
+  }
+
+  async createInventoryItem(data: any): Promise<any> {
+    try {
+      const [item] = await db.insert(inventoryItems).values(data).returning();
+      return item;
+    } catch (error) {
+      console.error("Error creating inventory item:", error);
+      throw error;
+    }
+  }
+
+  // Contract operations
+  async getContracts(): Promise<any[]> {
+    try {
+      return await db.select().from(contracts).orderBy(desc(contracts.createdAt));
+    } catch (error) {
+      console.error("Error fetching contracts:", error);
+      return [];
+    }
+  }
+
+  async createContract(data: any): Promise<any> {
+    try {
+      const [contract] = await db.insert(contracts).values(data).returning();
+      return contract;
+    } catch (error) {
+      console.error("Error creating contract:", error);
+      throw error;
+    }
+  }
+
+  // Audit log operations
+  async createAuditLog(data: any): Promise<any> {
+    try {
+      const [log] = await db.insert(auditLogs).values(data).returning();
+      return log;
+    } catch (error) {
+      console.error("Error creating audit log:", error);
+      return null;
+    }
+  }
+
+  async getAuditLogs(subsidiaryId: string): Promise<any[]> {
+    try {
+      return await db.select().from(auditLogs)
+        .where(eq(auditLogs.subsidiaryId, subsidiaryId))
+        .orderBy(desc(auditLogs.createdAt))
+        .limit(100);
+    } catch (error) {
+      console.error("Error fetching audit logs:", error);
+      return [];
     }
   }
 }

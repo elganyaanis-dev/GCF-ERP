@@ -19,6 +19,10 @@ import ERPOrganization from "@/pages/erp-organization";
 import ERPSettings from "@/pages/erp-settings";
 import ERPTenders from "@/pages/erp-tenders";
 import ERPCommunications from "@/pages/erp-communications";
+import ERPTimesheet from "@/pages/erp-timesheet";
+import ERPInventory from "@/pages/erp-inventory";
+import ERPContracts from "@/pages/erp-contracts";
+import ERPReports from "@/pages/erp-reports";
 import AdminConsole from "@/pages/admin-console";
 import NotFound from "@/pages/not-found";
 
@@ -31,10 +35,10 @@ function Router() {
 
   // Auto-navigate to dashboard when ERP is selected
   useEffect(() => {
-    if (selectedERP && !location.includes("/dashboard") && !location.includes("/employees") && 
-        !location.includes("/projects") && !location.includes("/documents") && 
-        !location.includes("/payroll") && !location.includes("/organization") && 
-        !location.includes("/tenders") && !location.includes("/settings") && !location.includes("/communications") && !location.includes("/admin")) {
+    const validPaths = ["/dashboard", "/employees", "/projects", "/documents", "/payroll", "/organization", 
+                       "/tenders", "/settings", "/communications", "/timesheet", "/inventory", "/contracts", 
+                       "/reports", "/admin"];
+    if (selectedERP && !validPaths.some(path => location.includes(path))) {
       navigate("/dashboard");
     }
   }, [selectedERP, navigate, location]);
@@ -74,6 +78,10 @@ function Router() {
       <Route path="/tenders" component={ERPTenders} />
       <Route path="/settings" component={ERPSettings} />
       <Route path="/communications" component={ERPCommunications} />
+      <Route path="/timesheet" component={ERPTimesheet} />
+      <Route path="/inventory" component={ERPInventory} />
+      <Route path="/contracts" component={ERPContracts} />
+      <Route path="/reports" component={ERPReports} />
       <Route path="/admin" component={AdminConsole} />
       <Route component={NotFound} />
     </Switch>

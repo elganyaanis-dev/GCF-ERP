@@ -394,6 +394,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ TIMESHEETS ============
+  app.get('/api/timesheets', isAuthenticated, async (req, res) => {
+    try {
+      const timesheets = await storage.getTimesheets();
+      res.json(timesheets);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch timesheets" });
+    }
+  });
+
+  app.post('/api/timesheets', isAuthenticated, async (req, res) => {
+    try {
+      const ts = await storage.createTimesheet(req.body);
+      res.status(201).json(ts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create timesheet" });
+    }
+  });
+
+  // ============ INVENTORY ============
+  app.get('/api/inventory', isAuthenticated, async (req, res) => {
+    try {
+      const items = await storage.getInventory();
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch inventory" });
+    }
+  });
+
+  app.post('/api/inventory', isAuthenticated, async (req, res) => {
+    try {
+      const item = await storage.createInventoryItem(req.body);
+      res.status(201).json(item);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create inventory item" });
+    }
+  });
+
+  // ============ CONTRACTS ============
+  app.get('/api/contracts', isAuthenticated, async (req, res) => {
+    try {
+      const contracts = await storage.getContracts();
+      res.json(contracts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch contracts" });
+    }
+  });
+
+  app.post('/api/contracts', isAuthenticated, async (req, res) => {
+    try {
+      const contract = await storage.createContract(req.body);
+      res.status(201).json(contract);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create contract" });
+    }
+  });
+
+  // ============ REPORTS & ANALYTICS ============
+  app.get('/api/reports/stats', isAuthenticated, async (req, res) => {
+    try {
+      const stats = await storage.getDashboardStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch report stats" });
+    }
+  });
+
+  // ============ AUDIT LOGS ============
+  app.get('/api/audit-logs/:subsidiaryId', isAuthenticated, async (req, res) => {
+    try {
+      const logs = await storage.getAuditLogs(req.params.subsidiaryId);
+      res.json(logs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch audit logs" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

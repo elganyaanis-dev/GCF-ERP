@@ -28,6 +28,7 @@ import AdminConsole from "@/pages/admin-console";
 import Subsidiaries from "@/pages/subsidiaries";
 import { useAuth } from "@/hooks/useAuth";
 import { SubsidiaryContext } from "@/hooks/useSubsidiary";
+import { AdminChat } from "@/components/admin-chat";
 
 function AuthRouter() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -98,6 +99,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthRouter />
+        <AdminChat />
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

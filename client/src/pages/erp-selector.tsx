@@ -28,10 +28,10 @@ export default function ERPSelector({
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">
-              Groupe GCF - Système ERP Intégré V5
+              Groupe GCF - Système ERP V5 Intégré
             </h1>
             <p className="text-slate-400">
-              Sélectionnez une filiale pour accéder à son système autonome sécurisé
+              Holding d'État • 6 ERPs Autonomes • Architecture Ultra-Moderne
             </p>
           </div>
 
@@ -58,7 +58,7 @@ export default function ERPSelector({
         </div>
       </div>
 
-      {/* Grid des ERPs */}
+      {/* Grid des ERPs - 6 éléments */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         {ERPS.map((erp) => (
           <Card
@@ -67,21 +67,36 @@ export default function ERPSelector({
             onClick={() => onSelectERP(erp.id)}
             data-testid={`card-erp-${erp.id}`}
           >
-            <div className={`h-32 bg-gradient-to-br ${erp.color} rounded-t-lg flex items-center justify-center`}>
+            <div className={`h-32 bg-gradient-to-br ${erp.color} rounded-t-lg flex items-center justify-center relative overflow-hidden`}>
               <Building2 className="h-12 w-12 text-white/80" />
+              {erp.niveau === "Filiale Opérationnelle (Récente)" && (
+                <div className="absolute top-2 right-2 bg-yellow-500/20 border border-yellow-500/50 rounded px-2 py-1">
+                  <p className="text-xs text-yellow-300 font-bold">NOUVELLE</p>
+                </div>
+              )}
             </div>
             <div className="p-6">
-              <h3 className="text-lg font-bold text-white mb-1">{erp.name}</h3>
-              <p className="text-sm text-slate-400 mb-4">{erp.subtitle}</p>
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <h3 className="text-lg font-bold text-white mb-1">{erp.name}</h3>
+                  <p className="text-xs text-slate-400 font-semibold">{erp.code}</p>
+                </div>
+              </div>
+              
+              <p className="text-sm text-slate-300 mb-4 line-clamp-2">{erp.subtitle}</p>
 
-              <div className="space-y-2 mb-4 text-xs text-slate-500">
+              <div className="space-y-2 mb-4 text-xs text-slate-400">
                 <div className="flex items-center gap-2">
-                  <Users className="h-3 w-3" />
-                  <span>Gestion RH complète</span>
+                  <span className="font-medium">PDG:</span>
+                  <span>{erp.pdg}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Lock className="h-3 w-3" />
-                  <span>Isolation multi-tenant</span>
+                  <span className="font-medium">Siège:</span>
+                  <span>{erp.siege}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">Statut:</span>
+                  <span className={erp.niveau === "Holding d'État" ? "text-blue-400" : "text-green-400"}>{erp.niveau}</span>
                 </div>
               </div>
 
@@ -100,14 +115,36 @@ export default function ERPSelector({
       {/* Footer info */}
       <div className="max-w-7xl mx-auto">
         <div className="bg-slate-800/30 border border-slate-700 rounded-lg p-6 text-center">
-          <p className="text-slate-400 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div>
+              <p className="text-2xl font-bold text-blue-400">6</p>
+              <p className="text-sm text-slate-300">ERPs Autonomes</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-green-400">32+</p>
+              <p className="text-sm text-slate-300">Modules Complets</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-purple-400">100%</p>
+              <p className="text-sm text-slate-300">Isolation Multi-Tenant</p>
+            </div>
+          </div>
+          
+          <p className="text-slate-300 text-sm mb-4">
             Chaque filiale dispose d'un système ERP complètement autonome avec ses propres données,
-            utilisateurs et configurations.
+            utilisateurs, configurations et permissions RBAC - dans une architecture moderne et sécurisée.
           </p>
+          
+          <p className="text-slate-400 text-xs">
+            Architecture Premium • Conformité Algérienne • Sécurité Entreprise-Grade • Performance Optimisée
+          </p>
+
           {isSupremeAdmin && (
-            <p className="text-purple-400 text-xs font-semibold mt-3">
-              ✓ Vous avez accès illimité à toutes les filiales en tant que Supreme Admin
-            </p>
+            <div className="mt-4 pt-4 border-t border-slate-700">
+              <p className="text-purple-400 text-xs font-semibold">
+                ✓ Accès illimité à toutes les filiales + paramètres système en tant que Supreme Admin
+              </p>
+            </div>
           )}
         </div>
       </div>

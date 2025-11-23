@@ -24,6 +24,7 @@ import Organization from "@/pages/organization";
 import OrgStructure from "@/pages/org-structure";
 import ERPCommunications from "@/pages/erp-communications";
 import AdminConsole from "@/pages/admin-console";
+import Subsidiaries from "@/pages/subsidiaries";
 import { useAuth } from "@/hooks/useAuth";
 
 function AuthRouter() {
@@ -56,6 +57,7 @@ function AuthRouter() {
           <main className="flex-1 overflow-auto">
             <Switch>
               <Route path="/" component={Dashboard} />
+              <Route path="/subsidiaries" component={Subsidiaries} />
               <Route path="/employees" component={Employees} />
               <Route path="/leaves" component={Leaves} />
               <Route path="/payroll" component={Payroll} />

@@ -54,6 +54,11 @@ export function AppSidebar() {
       icon: LayoutDashboard,
     },
     {
+      title: "Groupe GCF",
+      url: "/subsidiaries",
+      icon: Building2,
+    },
+    {
       title: "Ressources Humaines",
       icon: Users,
       items: [
@@ -92,10 +97,10 @@ export function AppSidebar() {
       icon: MessageSquare,
     },
     {
-      title: "Organisation",
+      title: "Administration",
       icon: Building2,
       items: [
-        { title: "Structure de Base", url: "/organization", icon: Building2 },
+        { title: "Structure Organisationnelle", url: "/organization", icon: Building2 },
         { title: "Directions & Services", url: "/org-structure", icon: Building2 },
       ],
     },

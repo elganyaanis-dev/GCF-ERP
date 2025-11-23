@@ -20,7 +20,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(userId);
       // Don't expose admin/director roles or accreditation levels to frontend
       if (user) {
-        const { role, accreditation_level, ...safeUser } = user;
+        const { role, accreditationLevel, ...safeUser } = user;
         res.json(safeUser);
       } else {
         res.json({ id: userId });
@@ -28,6 +28,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  app.post('/api/logout', async (req, res) => {
+    try {
+      res.clearCookie('sessionid');
+      res.clearCookie('connect.sid');
+      res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Error logging out:", error);
+      res.status(500).json({ message: "Failed to logout" });
     }
   });
 

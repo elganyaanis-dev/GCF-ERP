@@ -603,7 +603,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ============ ERP COMMUNICATIONS ROUTES ============
   app.get('/api/erp-communications', isAuthenticated, async (req, res) => {
     try {
-      const comms = await storage.getERPCommunications(req.user?.id);
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.id;
+      const comms = await storage.getERPCommunications(userId);
       res.json(comms);
     } catch (error) {
       console.error("Error fetching ERP communications:", error);
@@ -613,8 +614,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/erp-communications', isAuthenticated, async (req, res) => {
     try {
+      const userId = (req.user as any)?.claims?.sub || (req.user as any)?.id;
       const comm = await storage.createERPCommunication({
-        userId: req.user.id,
+        userId: userId,
         subject: req.body.subject,
         message: req.body.message,
         type: req.body.type || "feedback",

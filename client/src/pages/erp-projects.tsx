@@ -32,8 +32,8 @@ export default function ERPProjects() {
   return (
     <ERPLayout menuItems={menuItems} title="Gestion des Projets">
       <div className="p-6 space-y-6">
-        {/* KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPIs - Responsive */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <StatCard
             label="Total Projets"
             value={stats.totalProjects}
@@ -65,19 +65,21 @@ export default function ERPProjects() {
           />
         </div>
 
-        {/* Header */}
-        <div className="flex justify-between items-center">
+        {/* Header - Responsive */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
           <div>
-            <h2 className="text-2xl font-bold">Projets Actifs</h2>
-            <p className="text-sm text-muted-foreground">Suivi des projets, ressources et budgets</p>
+            <h2 className="text-xl sm:text-2xl font-bold">Projets Actifs</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground">Suivi des projets, ressources et budgets</p>
           </div>
-          <Button data-testid="button-add-project" className="gap-2">
-            <Plus className="w-4 h-4" /> Nouveau Projet
+          <Button data-testid="button-add-project" className="gap-2 flex-shrink-0 text-sm w-full sm:w-auto">
+            <Plus className="w-4 h-4" /> 
+            <span className="hidden sm:inline">Nouveau Projet</span>
+            <span className="sm:hidden">Nouveau</span>
           </Button>
         </div>
 
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Projects Grid - Responsive */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {projects?.length ? (
             projects.map((proj: any) => (
               <Card key={proj.id} className="hover-elevate transition-all overflow-hidden" data-testid={`card-project-${proj.id}`}>

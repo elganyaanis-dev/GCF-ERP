@@ -75,8 +75,8 @@ export default function ERPReports() {
           <p className="text-muted-foreground mt-2">Vue d'ensemble des performances clés et métriques</p>
         </div>
 
-        {/* KPIs Premium */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPIs Premium - Responsive */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {kpis.map((kpi, idx) => (
             <StatCard
               key={idx}
@@ -90,8 +90,8 @@ export default function ERPReports() {
           ))}
         </div>
 
-        {/* Metrics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Metrics - Responsive */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <Card className="hover-elevate">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2">
@@ -155,7 +155,7 @@ export default function ERPReports() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
               {[
                 { name: "Rapport RH Mensuel", desc: "Paie, congés, formations" },
                 { name: "Analyse Budgétaire", desc: "Dépenses vs prévisions" },
@@ -164,12 +164,12 @@ export default function ERPReports() {
                 { name: "Audit Trail Complet", desc: "Historique des modifications" },
                 { name: "Analytics Timesheet", desc: "Heures et productivité" },
               ].map((report) => (
-                <div key={report.name} className="flex items-start justify-between p-4 border rounded-lg hover-elevate cursor-pointer bg-card/50 transition-all">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{report.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{report.desc}</p>
+                <div key={report.name} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 sm:p-4 border rounded-lg hover-elevate cursor-pointer bg-card/50 transition-all">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{report.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{report.desc}</p>
                   </div>
-                  <Badge className="ml-2 bg-gradient-to-r from-indigo-500 to-purple-500">PDF</Badge>
+                  <Badge className="ml-0 sm:ml-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-xs flex-shrink-0">PDF</Badge>
                 </div>
               ))}
             </div>

@@ -432,6 +432,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============ MISSIONS ============
+  app.get('/api/missions', isAuthenticated, async (req, res) => {
+    try {
+      const missions = [
+        { id: '1', name: 'Mission A - Électrification', description: 'Installation des caténaires ligne principale', status: 'active', phase: 'execution', tasks: [{ id: '1', name: 'Préparation du site', completed: true }, { id: '2', name: 'Installation', completed: false }], assignees: ['K.A', 'S.B'] },
+        { id: '2', name: 'Mission B - Construction Infrastructure', description: 'Travaux de construction pont ferroviaire', status: 'active', phase: 'planification', tasks: [{ id: '3', name: 'Étude de faisabilité', completed: true }], assignees: ['T.R'] },
+        { id: '3', name: 'Mission C - Maintenance', description: 'Maintenance préventive du matériel roulant', status: 'completed', phase: 'completion', tasks: [{ id: '4', name: 'Révision générale', completed: true }, { id: '5', name: 'Tests', completed: true }], assignees: ['L.H', 'M.L'] },
+        { id: '4', name: 'Mission D - Ingénierie BIM', description: 'Modélisation 3D pour projet tramway', status: 'active', phase: 'validation', tasks: [{ id: '6', name: 'Modélisation', completed: true }, { id: '7', name: 'Validation', completed: false }, { id: '8', name: 'Documentation', completed: false }], assignees: ['F.T'] },
+      ];
+      res.json(missions);
+    } catch (error) {
+      console.error("Error fetching missions:", error);
+      res.status(500).json({ message: "Failed to fetch missions" });
+    }
+  });
+
+  app.post('/api/missions', isAuthenticated, async (req, res) => {
+    try {
+      const mission = { id: Date.now().toString(), ...req.body };
+      res.status(201).json(mission);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to create mission" });
+    }
+  });
+
   // ============ CONTRACTS ============
   app.get('/api/contracts', isAuthenticated, async (req, res) => {
     try {

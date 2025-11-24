@@ -1,0 +1,47 @@
+╔════════════════════════════════════════════════════════════════╗
+║  COMMANDES À EXÉCUTER DANS LE TERMINAL REPLIT (SHELL TAB)      ║
+║  POUR POUSSER TOUT LE CODE VERS GITHUB                         ║
+╚════════════════════════════════════════════════════════════════╝
+
+📍 DESTINATION: https://github.com/elganyaanis-dev/GCF-ERP
+
+════════════════════════════════════════════════════════════════
+
+⏹️  ÉTAPE 1: Supprimer le verrou git
+
+rm -f .git/index.lock
+
+
+⏹️  ÉTAPE 2: Ajouter tous les fichiers et créer un commit
+
+git add . && git commit -m "Add complete GCF ERP V5 Ultra Premium: 12 React pages, 6 autonomous ERPs, Missions management with 4 phases, 100% responsive design, 40+ API endpoints, RBAC authentication, analytics dashboards"
+
+
+⏹️  ÉTAPE 3: Pousser vers GitHub
+
+git push -u origin main
+
+
+════════════════════════════════════════════════════════════════
+
+✅ SI TOUT EST OK:
+
+• Allez vérifier: https://github.com/elganyaanis-dev/GCF-ERP
+• Vous verrez TOUS les fichiers (client/, server/, shared/, config, etc)
+• Puis ouvrez l'app Replit "gcf-erp" ET exécutez:
+
+git pull origin main
+npm install
+npm run dev
+
+
+════════════════════════════════════════════════════════════════
+
+💡 NOTES:
+
+• Les fichiers à pousser: 111+ fichiers TypeScript/React
+• Taille totale: ~10,000+ lignes de code
+• Contient: 12 pages, 40+ endpoints, 6 ERPs, Missions, Analytics
+• Remote déjà configuré: origin → https://github.com/elganyaanis-dev/GCF-ERP
+
+════════════════════════════════════════════════════════════════

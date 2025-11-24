@@ -19,7 +19,7 @@ interface AdminChatMessage {
 }
 
 export function AdminChat() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
@@ -28,11 +28,11 @@ export function AdminChat() {
   // Check if user is supreme admin BEFORE all hooks
   const isSupremeAdmin = typeof user === "object" && user ? (user as any)?.email === "elganya.anis@gmail.com" : false;
 
-  // Fetch admin chat messages - only for supreme admin
+  // Fetch admin chat messages - only for supreme admin AND auth is ready
   const { data: messages = [], isLoading } = useQuery({
     queryKey: ["/api/admin-chat"],
     refetchInterval: isSupremeAdmin ? 3000 : false,
-    enabled: isSupremeAdmin,
+    enabled: isSupremeAdmin && !authLoading,
     staleTime: 2000,
   });
 
@@ -84,8 +84,8 @@ export function AdminChat() {
     }
   };
 
-  // Return nothing if not supreme admin (after ALL hooks)
-  if (!isSupremeAdmin) {
+  // Return nothing if not supreme admin or auth still loading (after ALL hooks)
+  if (!isSupremeAdmin || authLoading) {
     return null;
   }
 

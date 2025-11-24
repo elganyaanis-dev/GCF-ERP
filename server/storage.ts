@@ -635,16 +635,6 @@ export class DatabaseStorage implements IStorage {
     return setting;
   }
 
-  // Poles operations
-  async getPoles(): Promise<any[]> {
-    try {
-      return await db.select().from(poles);
-    } catch (error) {
-      console.error("Error getting poles:", error);
-      return [];
-    }
-  }
-
   async getPoleById(id: string): Promise<any> {
     try {
       const [pole] = await db.select().from(poles).where(eq(poles.id, id));
@@ -652,27 +642,6 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error getting pole:", error);
       return null;
-    }
-  }
-
-  async getPoleServices(poleId: string): Promise<any[]> {
-    try {
-      return await db.select().from(poleServices).where(eq(poleServices.poleId, poleId));
-    } catch (error) {
-      console.error("Error getting pole services:", error);
-      return [];
-    }
-  }
-
-  async getUnits(poleServiceId?: string): Promise<any[]> {
-    try {
-      if (poleServiceId) {
-        return await db.select().from(units).where(eq(units.poleServiceId, poleServiceId));
-      }
-      return await db.select().from(units);
-    } catch (error) {
-      console.error("Error getting units:", error);
-      return [];
     }
   }
 

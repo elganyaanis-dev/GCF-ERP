@@ -1,0 +1,59 @@
+╔══════════════════════════════════════════════════════════════════╗
+║   EXÉCUTEZ CES COMMANDES DANS LE TERMINAL REPLIT (SHELL TAB)     ║
+╚══════════════════════════════════════════════════════════════════╝
+
+Copiez-collez ces commandes UNE PAR UNE:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣  Supprimez le verrou git (s'il y a une erreur, ignorez):
+
+rm -f .git/index.lock
+
+
+2️⃣  Configurez le remote GitHub:
+
+git remote set-url origin https://github.com/elganyaanis-dev/gcf-erp.git
+
+
+3️⃣  Vérifiez le statut:
+
+git status
+
+
+4️⃣  Ajoutez TOUS les fichiers:
+
+git add .
+
+
+5️⃣  Créez un commit:
+
+git commit -m "Add complete GCF ERP V5 Ultra Premium: 12 pages, 6 ERPs, Missions management, responsive design, 40+ API endpoints"
+
+
+6️⃣  Poussez vers GitHub:
+
+git push -u origin main
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ UNE FOIS TERMINÉ:
+
+Allez vérifier sur: https://github.com/elganyaanis-dev/gcf-erp
+
+Vous devriez voir TOUS les fichiers:
+  ✅ client/ (12 pages)
+  ✅ server/ (API backend)
+  ✅ shared/ (Schemas)
+  ✅ Configuration (vite, tailwind, etc)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ENSUITE, DANS L'APP REPLIT "gcf-erp":
+
+git pull origin main
+npm install
+npm run dev
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -1,0 +1,83 @@
+════════════════════════════════════════════════════════════════
+🚀 ÉTAPES POUR MIGRER VERS L'APP REPLIT "gcf-erp"
+════════════════════════════════════════════════════════════════
+
+ÉTAPE 1: ACCÉDER À L'APP REPLIT "gcf-erp"
+─────────────────────────────────────────
+1. Allez sur votre Replit Dashboard
+2. Cliquez sur l'app "gcf-erp" (celle du haut avec l'icône)
+3. Vous êtes maintenant dans cette app
+
+ÉTAPE 2: CLONER LE CODE (OPTION A - RECOMMANDÉ)
+────────────────────────────────────────────────
+Si le repo GitHub de gcf-erp existe:
+
+A. Dans le terminal de l'app "gcf-erp":
+   
+   git remote set-url origin https://github.com/YOUR_USER/gcf-erp.git
+   git pull origin main
+   npm install
+
+B. Ou si vous voulez tout remplacer:
+   
+   git clone https://github.com/YOUR_USER/gcf-erp.git .
+   npm install
+
+ÉTAPE 3: COPIER LES FICHIERS (OPTION B - MANUEL)
+────────────────────────────────────────────────
+Dossiers à copier:
+✅ client/
+✅ server/
+✅ shared/
+✅ public/
+
+Fichiers à copier:
+✅ package.json
+✅ package-lock.json
+✅ tsconfig.json
+✅ vite.config.ts
+✅ tailwind.config.ts
+✅ postcss.config.js
+✅ drizzle.config.ts
+✅ index.html
+✅ client/index.html
+
+ÉTAPE 4: INSTALLER LES DÉPENDANCES
+──────────────────────────────────
+Dans le terminal de "gcf-erp":
+
+npm install
+
+(Attendre que tout se télécharge)
+
+ÉTAPE 5: RELANCER L'APP
+──────────────────────
+1. Cliquez le bouton "Run" 
+2. Attendez que le workflow redémarre
+3. L'app devrait être visible sur http://localhost:5000
+
+ÉTAPE 6: VÉRIFIER QUE ÇA MARCHE
+─────────────────────────────────
+✅ Page sélection ERP affichée
+✅ Cliquer sur un ERP (ex: GCF)
+✅ Dashboard fonctionnel
+✅ "Missions" page disponible
+✅ Navigation fluide
+✅ Responsive sur mobile
+✅ Logout fonctionne
+
+ÉTAPE 7: POUSSER VERS GITHUB (OPTIONNEL)
+──────────────────────────────────────────
+git add .
+git commit -m "Migrate GCF ERP V5 Ultra Premium"
+git push origin main
+
+════════════════════════════════════════════════════════════════
+SYSTÈME INCLUS:
+• 12 Pages (Dashboard, Employés, Projets, MISSIONS, etc)
+• 6 ERPs (GCF + 5 Filiales)
+• 100% Responsive (Mobile + PC)
+• Auth Replit + RBAC 6 niveaux
+• 40+ API endpoints
+• Premium Design avec gradients
+════════════════════════════════════════════════════════════════
